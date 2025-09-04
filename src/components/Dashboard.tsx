@@ -461,10 +461,29 @@ const Dashboard: React.FC = () => {
                   })()}
                 </tbody>
               </table>
+import AccountDetailsView from './AccountDetailsView';
             </div>
           </div>
+  currentView: string;
+  selectedAccount: string | null;
+  onViewDetails: (accountId: string) => void;
+  onBackToDashboard: () => void;
         </div>
       </div>
+const Dashboard: React.FC<DashboardProps> = ({ 
+  currentView, 
+  selectedAccount, 
+  onViewDetails, 
+  onBackToDashboard 
+}) => {
+  }
+
+  if (currentView === 'account-details' && selectedAccount) {
+    return (
+      <AccountDetailsView 
+        accountId={selectedAccount}
+        onBack={onBackToDashboard}
+      />
     );
   }
 
@@ -485,7 +504,7 @@ const Dashboard: React.FC = () => {
                 placeholder="Search by Cloud account or Application..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onViewDetails={onViewDetails}
               />
             </div>
           </div>
