@@ -42,19 +42,7 @@ interface SavingsRow {
   percent: number;
 }
 
-interface DashboardProps {
-  currentView: string;
-  selectedAccount: string | null;
-  onViewDetails: (accountId: string) => void;
-  onBackToDashboard: () => void;
-}
-
-const Dashboard: React.FC<DashboardProps> = ({ 
-  currentView, 
-  selectedAccount, 
-  onViewDetails, 
-  onBackToDashboard 
-}) => {
+const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProvider, setSelectedProvider] = useState('AWS');
   const [selectedQuarter, setSelectedQuarter] = useState('2025, Q1');
@@ -477,12 +465,6 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       </div>
-    );
-  }
-
-  if (currentView === 'account-details' && selectedAccount) {
-    return (
-      <div>Account Details View for {selectedAccount}</div>
     );
   }
 
