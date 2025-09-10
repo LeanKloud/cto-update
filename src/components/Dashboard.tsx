@@ -233,4 +233,212 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
     { cloudAccount: 'Cloud Account 2', applicationName: 'Temp_Core_01', computeUsage: 60, dbUsage: 70, storage: 80, diskUtilisation: 68, idleInstances: 9, spends: 3000, savings: 10, status: 'active' },
     { cloudAccount: 'Cloud Account 1', applicationName: 'Temp_Core_01', computeUsage: 60, dbUsage: 70, storage: 80, diskUtilisation: 63, idleInstances: 7, spends: 3000, savings: 10, status: 'active' }
   ];
+
+  // Sample savings data for the savings table
+  const savingsData: SavingsRow[] = [
+    { cloudAccount: 'Cloud Account 1', applicationName: 'App_01', onDemand: 4500, withSpot: 1200, withoutSpot: 3300, percent: 73 },
+    { cloudAccount: 'Cloud Account 2', applicationName: 'App_02', onDemand: 3200, withSpot: 1100, withoutSpot: 2100, percent: 66 },
+    { cloudAccount: 'Cloud Account 3', applicationName: 'App_03', onDemand: 2800, withSpot: 900, withoutSpot: 1900, percent: 68 },
+    { cloudAccount: 'Cloud Account 4', applicationName: 'App_04', onDemand: 5100, withSpot: 1400, withoutSpot: 3700, percent: 73 },
+    { cloudAccount: 'Cloud Account 5', applicationName: 'App_05', onDemand: 3900, withSpot: 1300, withoutSpot: 2600, percent: 67 }
+  ];
+
+  const filteredApplicationData = applicationData.filter(app => {
+    const matchesSearch = searchTerm === '' || 
+      app.cloudAccount.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.applicationName.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (attentionFilter === 'All') return matchesSearch;
+    
+    if (activeTab === 'Usage & Cost') {
+      return matchesSearch && app.cloudAccount === attentionFilter;
+    } else if (activeTab === 'Disk utilisation') {
+      const threshold = parseInt(attentionFilter.replace('> ', '').replace('%', ''));
+      return matchesSearch && app.diskUtilisation > threshold;
+    } else if (activeTab === 'Idle instances') {
+      const threshold = parseInt(attentionFilter.replace('> ', ''));
+      return matchesSearch && app.idleInstances > threshold;
+    }
+    
+    return matchesSearch;
+  });
+
+  const spotData = getSortedSpotData().filter(d => accountMatchesSearch(d.account));
+
+  const getSortedSavingsData = () => {
+    const data = [...savingsData];
+    
+    switch (savingsSortBy) {
+      case 'Savings % (Highest to Lowest)':
+        return data.sort((a, b) => b.percent - a.percent);
+      case 'Savings % (Lowest to Highest)':
+        return data.sort((a, b) => a.percent - b.percent);
+      case 'On Demand (Highest to Lowest)':
+        return data.sort((a, b) => b.onDemand - a.onDemand);
+      case 'On Demand (Lowest to Highest)':
+        return data.sort((a, b) => a.onDemand - b.onDemand);
+      case 'With Spot (Highest to Lowest)':
+        return data.sort((a, b) => b.withSpot - a.withSpot);
+      case 'With Spot (Lowest to Highest)':
+        return data.sort((a, b) => a.withSpot - b.withSpot);
+      default:
+        return data;
+    }
+  };
+
+  const sortedSavingsData = getSortedSavingsData();
+
+  const alerts = [
+    { id: 1, type: 'warning', message: 'High disk utilization detected in Cloud Account 3', time: '2 minutes ago', severity: 'medium' },
+    { id: 2, type: 'error', message: 'Cost threshold exceeded for Cloud Account 1', time: '5 minutes ago', severity: 'high' },
+    { id: 3, type: 'info', message: 'New optimization recommendations available', time: '10 minutes ago', severity: 'low' },
+    { id: 4, type: 'warning', message: 'Idle instances detected in Cloud Account 2', time: '15 minutes ago', severity: 'medium' },
+    { id: 5, type: 'error', message: 'Service disruption in Cloud Account 4', time: '20 minutes ago', severity: 'high' },
+    { id: 6, type: 'info', message: 'Monthly report generated successfully', time: '25 minutes ago', severity: 'low' }
+  ];
+
+  const displayedAlerts = showAllAlerts ? alerts : alerts.slice(0, 2);
+
+  const renderChart = () => {
+    const maxValue = Math.max(...filteredChartData.flatMap(d => [d.spendings, d.savings, d.potential]));
+    const chartHeight = 200;
+    const chartWidth = 600;
+    const barWidth = 40;
+    const groupWidth = 140;
+    const leftMargin = 60;
+
+    return (
+      <div className="relative">
+        <svg width={chartWidth + leftMargin + 40} height={chartHeight + 60} className="overflow-visible">
+          {/* Y-axis labels */}
+          {[0, 200, 400, 600, 800].map((value, i) => (
+            <g key={value}>
+              <text
+                x={leftMargin - 10}
+                y={chartHeight - (value / maxValue) * chartHeight + 5}
+                textAnchor="end"
+                className="text-xs fill-gray-500"
+              >
+                {value}k
+              </text>
+              <line
+                x1={leftMargin}
+                y1={chartHeight - (value / maxValue) * chartHeight}
+                x2={chartWidth + leftMargin}
+                y2={chartHeight - (value / maxValue) * chartHeight}
+                stroke="#f3f4f6"
+                strokeWidth="1"
+              />
+            </g>
+          ))}
+
+          {/* Bars */}
+          {filteredChartData.map((data, index) => {
+            const x = leftMargin + index * groupWidth + 20;
+            const spendingHeight = (data.spendings / maxValue) * chartHeight;
+            const savingsHeight = (data.savings / maxValue) * chartHeight;
+            const potentialHeight = (data.potential / maxValue) * chartHeight;
+
+            return (
+              <g key={data.account}>
+                {/* Spending bar */}
+                <rect
+                  x={x}
+                  y={chartHeight - spendingHeight}
+                  width={barWidth}
+                  height={spendingHeight}
+                  fill="#3b82f6"
+                  className="hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAccount(data.account)}
+                  onMouseLeave={() => setHoveredAccount(null)}
+                  onClick={() => onViewAccountDetails(`cloud-account-${data.account}`)}
+                />
+                
+                {/* Savings bar */}
+                <rect
+                  x={x + barWidth + 5}
+                  y={chartHeight - savingsHeight}
+                  width={barWidth}
+                  height={savingsHeight}
+                  fill="#10b981"
+                  className="hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAccount(data.account)}
+                  onMouseLeave={() => setHoveredAccount(null)}
+                  onClick={() => onViewAccountDetails(`cloud-account-${data.account}`)}
+                />
+                
+                {/* Potential savings bar */}
+                <rect
+                  x={x + (barWidth + 5) * 2}
+                  y={chartHeight - potentialHeight}
+                  width={barWidth}
+                  height={potentialHeight}
+                  fill="#f59e0b"
+                  className="hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAccount(data.account)}
+                  onMouseLeave={() => setHoveredAccount(null)}
+                  onClick={() => onViewAccountDetails(`cloud-account-${data.account}`)}
+                />
+
+                {/* Account label */}
+                <text
+                  x={x + groupWidth / 2 - 10}
+                  y={chartHeight + 20}
+                  textAnchor="middle"
+                  className="text-xs fill-gray-600"
+                >
+                  {data.account}
+                </text>
+
+                {/* Tooltip */}
+                {hoveredAccount === data.account && (
+                  <g>
+                    <rect
+                      x={x - 20}
+                      y={chartHeight - Math.max(spendingHeight, savingsHeight, potentialHeight) - 80}
+                      width={160}
+                      height={70}
+                      fill="white"
+                      stroke="#e5e7eb"
+                      strokeWidth="1"
+                      rx="4"
+                      className="drop-shadow-lg"
+                    />
+                    <text x={x - 10} y={chartHeight - Math.max(spendingHeight, savingsHeight, potentialHeight) - 60} className="text-xs font-medium fill-gray-900">
+                      Cloud Account {data.account}
+                    </text>
+                    <text x={x - 10} y={chartHeight - Math.max(spendingHeight, savingsHeight, potentialHeight) - 45} className="text-xs fill-blue-600">
+                      Spends: {data.spendings}k
+                    </text>
+                    <text x={x - 10} y={chartHeight - Math.max(spendingHeight, savingsHeight, potentialHeight) - 30} className="text-xs fill-green-600">
+                      Savings: {data.savings}k
+                    </text>
+                    <text x={x - 10} y={chartHeight - Math.max(spendingHeight, savingsHeight, potentialHeight) - 15} className="text-xs fill-yellow-600">
+                      Potential: {data.potential}k
+                    </text>
+                  </g>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Legend */}
+        <div className="flex items-center gap-6 mt-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-blue-500 rounded"></div>
+            <span className="text-sm text-gray-600">Spends</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-green-500 rounded"></div>
+            <span className="text-sm text-gray-600">Savings</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+            <span className="text-sm text-gray-600">Potential Savings</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
 }
