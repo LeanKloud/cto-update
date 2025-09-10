@@ -42,7 +42,12 @@ interface SavingsRow {
   percent: number;
 }
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  onViewApplications: () => void;
+  onViewAccountDetails: (accountId: string) => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccountDetails }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProvider, setSelectedProvider] = useState('AWS');
   const [selectedQuarter, setSelectedQuarter] = useState('2025, Q1');
@@ -66,6 +71,7 @@ const Dashboard: React.FC = () => {
   const [savingsSortBy, setSavingsSortBy] = useState('');
   const [showAttentionFilterDropdown, setShowAttentionFilterDropdown] = useState(false);
   const [attentionFilter, setAttentionFilter] = useState('All');
+  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const getAttentionFilterOptions = () => {
     if (activeTab === 'Usage & Cost') {
       return ['All', 'Cloud Account 1', 'Cloud Account 2', 'Cloud Account 3'];
@@ -468,6 +474,21 @@ const Dashboard: React.FC = () => {
     );
   }
 
+  const handleAlertAccountClick = (accountName: string) => {
+    // Map account name to account ID for navigation
+    const accountMap: { [key: string]: string } = {
+      'Cloud Account 1': 'ca-123',
+      'Cloud Account 2': 'ca-124', 
+      'Cloud Account 3': 'ca-125',
+      'Cloud Account 4': 'ca-126'
+    };
+    
+    const accountId = accountMap[accountName];
+    if (accountId) {
+      onViewAccountDetails(accountId);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header Section */}
@@ -592,23 +613,88 @@ const Dashboard: React.FC = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-8">
-              {/* Alert 1 */}
-              <div className="border-l-4 border-red-500 pl-4 py-2">
-                <h4 className="font-medium text-gray-900 mb-1">High Cloud Spend, Low Efficiency</h4>
-                <p className="text-sm text-gray-600">
-                  Cloud Accounts 4, 5, and 6 are showing elevated spending with low efficiency. Review these accounts to unlock potential cost savings.
-                </p>
-                <ChevronRight className="h-4 w-4 text-gray-400 mt-2" />
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex-shrink-0">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-medium text-red-800">High Spend Alert</h4>
+                  <p className="text-sm text-red-700 mt-1">
+                    Cloud Account 1 has the highest spend of $2.4M this quarter
+                  </p>
+                  <button 
+                    onClick={onViewApplications}
+                    className="text-xs text-red-600 hover:text-red-800 underline mt-1 block"
+                  >
+                    View applications →
+                  </button>
+                  <p className="text-xs text-red-600 mt-1">1 hour ago</p>
+                </div>
               </div>
-
-              {/* Alert 2 */}
-              <div className="border-l-4 border-orange-500 pl-4 py-2">
-                <h4 className="font-medium text-gray-900 mb-1">Inefficient Cloud Usage Detected</h4>
-                <p className="text-sm text-gray-600">
-                  Accounts 2, 3, and 8 are incurring high costs with minimal output. There's significant room for optimization and savings.
-                </p>
-                <ChevronRight className="h-4 w-4 text-gray-400 mt-2" />
+              
+              <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex-shrink-0">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-medium text-blue-800">New Asset Created</h4>
+                  <p className="text-sm text-blue-700 mt-1">
+                    New EC2 instance (i-0a1b2c3d4e5f6789) created in Cloud Account 2
+                  </p>
+                  <button 
+                    onClick={() => setSelectedAccount('ca-456')}
+                    className="text-xs text-blue-600 hover:text-blue-800 underline mt-1 block"
+                  >
+                    View applications →
+                  </button>
+                  <p className="text-xs text-blue-600 mt-1">30 minutes ago</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="flex-shrink-0">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-medium text-orange-800">Resource Imbalance</h4>
+                  <p className="text-sm text-orange-700 mt-1">
+                    Cloud Account 1 has 3x more resources than other accounts
+                  </p>
+                  <button 
+                    onClick={() => setSelectedAccount('ca-123')}
+                    className="text-xs text-orange-600 hover:text-orange-800 underline mt-1 block"
+                  >
+                    View applications →
+                  </button>
+                  <p className="text-xs text-orange-600 mt-1">2 hours ago</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex-shrink-0">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-medium text-red-800">Compute Outage</h4>
+                  <p className="text-sm text-red-700 mt-1">
+                    EC2 instance i-de0b6b3a7640000 in us-east-1 is unresponsive
+                  </p>
+                  <p className="text-xs text-red-600 mt-1">15 minutes ago</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex-shrink-0">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-medium text-red-800">Disk Outage</h4>
+                  <p className="text-sm text-red-700 mt-1">
+                    EBS volume vol-6124fee993bc0000 experiencing I/O errors
+                  </p>
+                  <p className="text-xs text-red-600 mt-1">5 minutes ago</p>
+                </div>
               </div>
             </div>
           </div>
@@ -1044,17 +1130,18 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="max-h-48 overflow-y-auto mt-1 space-y-1">
                     {Array.from({ length: 10 }, (_, idx) => idx + 1).map((acc) => (
-                      <label key={acc} className="flex items-center space-x-2 px-2 py-1 text-sm cursor-pointer text-gray-700">
+                      <label key={acc} className="flex items-center space-x-2 px-2 py-1 text-sm hover:bg-gray-50 rounded cursor-pointer">
                         <input
                           type="checkbox"
                           checked={selectedTrendClouds.includes(acc)}
                           onChange={(e) => {
-                            setSelectedTrendClouds((prev) => {
-                              if (e.target.checked) return [...prev, acc];
-                              return prev.filter((a) => a !== acc);
-                            });
+                            if (e.target.checked) {
+                              setSelectedTrendClouds([...selectedTrendClouds, acc]);
+                            } else {
+                              setSelectedTrendClouds(selectedTrendClouds.filter(c => c !== acc));
+                            }
                           }}
-                          className="rounded border-gray-300"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
                         <span>Cloud Account {acc}</span>
                       </label>
@@ -1065,106 +1152,150 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="mt-4 flex items-center space-x-4">
-            {(['Spends','Savings','Potential savings','Efficiency'] as const).map(tab => (
+          {/* Metric Selector */}
+          <div className="flex space-x-4 mt-6 mb-4">
+            {(['Spends', 'Savings', 'Potential savings', 'Efficiency'] as const).map((metric) => (
               <button
-                key={tab}
-                onClick={() => setSelectedTrendMetric(tab)}
-                className={`px-4 py-2 rounded-full text-sm ${selectedTrendMetric === tab ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700'}`}
+                key={metric}
+                onClick={() => setSelectedTrendMetric(metric)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedTrendMetric === metric
+                    ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               >
-                {tab}
+                {metric}
               </button>
             ))}
           </div>
 
-          {/* Line Chart */}
-          <div className="mt-6">
-            <div className="relative">
-              {/* grid lines */}
-              <div className="absolute inset-0 px-12">
-                <div className="h-full w-full grid grid-cols-10">
-                  {trendQuarters.map((_, i) => (
-                    <div key={i} className="border-r border-gray-200"></div>
-                  ))}
-                </div>
-              </div>
+          {/* Trend Chart */}
+          <div className="relative h-80 mt-6">
+            <svg width="100%" height="100%" viewBox="0 0 800 300" className="overflow-visible">
+              {/* Grid lines */}
+              {Array.from({ length: 6 }).map((_, i) => (
+                <line
+                  key={i}
+                  x1="60"
+                  y1={50 + i * 40}
+                  x2="740"
+                  y2={50 + i * 40}
+                  stroke="#f3f4f6"
+                  strokeWidth="1"
+                />
+              ))}
+              
+              {/* Y-axis */}
+              <line x1="60" y1="50" x2="60" y2="250" stroke="#9ca3af" strokeWidth="2"/>
+              
+              {/* X-axis */}
+              <line x1="60" y1="250" x2="740" y2="250" stroke="#9ca3af" strokeWidth="2"/>
 
-              {/* SVG chart */}
-              <svg width="100%" height="260" viewBox="0 0 1000 260" preserveAspectRatio="none">
-                {Array.from({ length: 10 }, (_, idx) => {
-                  const account = idx + 1;
-                  if (!selectedTrendClouds.includes(account)) return null;
-                  const values = trendData[selectedTrendMetric][account];
-                  const maxY = selectedTrendMetric === 'Efficiency' ? 100 : 800; // scale caps
-                  const points = values.map((v, i) => {
-                    const x = 40 + (i * (920 / (values.length - 1)));
-                    const y = 220 - (v / maxY) * 160; // top padding
-                    return `${x},${y}`;
-                  }).join(' ');
-                  return (
+              {/* Trend lines */}
+              {selectedTrendClouds.map((account) => {
+                const data = trendData[selectedTrendMetric][account];
+                const color = accountColors[(account - 1) % accountColors.length];
+                
+                const points = data.map((value, idx) => {
+                  const x = 60 + (idx * (680 / (trendQuarters.length - 1)));
+                  const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
+                  const y = 250 - ((value / maxVal) * 200);
+                  return `${x},${y}`;
+                }).join(' ');
+
+                return (
+                  <g key={account}>
                     <polyline
-                      key={account}
                       points={points}
                       fill="none"
-                      stroke={accountColors[idx % accountColors.length]}
+                      stroke={color}
                       strokeWidth="2"
-                      strokeDasharray="2 6"
-                      opacity="0.9"
+                      className="hover:stroke-4"
                     />
-                  );
-                })}
-
-                {/* Markers and hover handlers */}
-                {Array.from({ length: 10 }, (_, idx) => {
-                  const account = idx + 1;
-                  if (!selectedTrendClouds.includes(account)) return [] as any;
-                  const values = trendData[selectedTrendMetric][account];
-                  const maxY = selectedTrendMetric === 'Efficiency' ? 100 : 800;
-                  return values.map((v, i) => {
-                    const x = 40 + (i * (920 / (values.length - 1)));
-                    const y = 220 - (v / maxY) * 160;
-                    return (
-                      <g key={`${account}-${i}`}>
-                        <circle cx={x} cy={y} r={3} fill={accountColors[idx % accountColors.length]} onMouseEnter={() => setHoveredTrendPoint({ account, quarterIdx: i })} onMouseLeave={() => setHoveredTrendPoint(null)} />
-                      </g>
-                    );
-                  });
-                })}
-              </svg>
-
-              {/* Tooltip specifically matching Cloud Account 6 on 2025 Q2 */}
-              {hoveredTrendPoint && hoveredTrendPoint.account === 6 && hoveredTrendPoint.quarterIdx === 0 && (
-                <div className="absolute left-8 top-6 bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 text-sm whitespace-nowrap">
-                  <div className="font-bold text-gray-900 mb-2">Cloud Account 6</div>
-                  <div className="text-gray-600 mb-1">Spends - $700k</div>
-                  <div className="text-gray-600 mb-1">Savings - $600k</div>
-                  <div className="text-gray-600 mb-1">Potential savings - $650k</div>
-                  <div className="text-gray-600">Efficiency - 30%</div>
-                </div>
-              )}
-            </div>
-
-            {/* X-axis labels */}
-            <div className="mt-4 grid grid-cols-10 px-6">
-              {trendQuarters.map((q, i) => (
-                <div key={i} className="text-gray-700 text-lg font-medium text-center">{q.replace(',', '')}</div>
-              ))}
-            </div>
-
-            {/* Legend */}
-            <div className="mt-6 grid grid-cols-5 gap-y-2 gap-x-10">
-              {Array.from({ length: 10 }, (_, idx) => {
-                const account = idx + 1;
-                if (!selectedTrendClouds.includes(account)) return null;
-                return (
-                  <div key={idx} className="flex items-center space-x-2">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: accountColors[idx % accountColors.length] }}></span>
-                    <span className="text-gray-700 text-sm">Cloud Account {idx + 1}</span>
-                  </div>
+                    {/* Data points */}
+                    {data.map((value, idx) => {
+                      const x = 60 + (idx * (680 / (trendQuarters.length - 1)));
+                      const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
+                      const y = 250 - ((value / maxVal) * 200);
+                      
+                      return (
+                        <circle
+                          key={idx}
+                          cx={x}
+                          cy={y}
+                          r="4"
+                          fill={color}
+                          className="hover:r-6 cursor-pointer"
+                          onMouseEnter={() => setHoveredTrendPoint({ account, quarterIdx: idx })}
+                          onMouseLeave={() => setHoveredTrendPoint(null)}
+                        />
+                      );
+                    })}
+                  </g>
                 );
               })}
-            </div>
+
+              {/* X-axis labels */}
+              {trendQuarters.map((quarter, idx) => (
+                <text
+                  key={idx}
+                  x={60 + (idx * (680 / (trendQuarters.length - 1)))}
+                  y="270"
+                  textAnchor="middle"
+                  className="text-xs fill-gray-600"
+                >
+                  {quarter}
+                </text>
+              ))}
+
+              {/* Y-axis labels */}
+              {Array.from({ length: 6 }).map((_, i) => {
+                const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
+                const value = maxVal - (i * (maxVal / 5));
+                const suffix = selectedTrendMetric === 'Efficiency' ? '%' : 'k';
+                
+                return (
+                  <text
+                    key={i}
+                    x="50"
+                    y={55 + i * 40}
+                    textAnchor="end"
+                    className="text-xs fill-gray-600"
+                  >
+                    {value}{suffix}
+                  </text>
+                );
+              })}
+            </svg>
+
+            {/* Tooltip */}
+            {hoveredTrendPoint && hoveredTrendPoint.account === 6 && hoveredTrendPoint.quarterIdx === 0 && (
+              <div className="absolute bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-2 text-xs z-10 pointer-events-none"
+                   style={{ 
+                     left: `${60 + (hoveredTrendPoint.quarterIdx * (680 / (trendQuarters.length - 1))) - 40}px`,
+                     top: '20px'
+                   }}>
+                <div className="font-bold text-gray-900 mb-1">Cloud Account 6</div>
+                <div className="text-gray-600">{trendQuarters[hoveredTrendPoint.quarterIdx]}</div>
+                <div className="text-gray-600">
+                  {selectedTrendMetric}: {trendData[selectedTrendMetric][hoveredTrendPoint.account][hoveredTrendPoint.quarterIdx]}
+                  {selectedTrendMetric === 'Efficiency' ? '%' : 'k'}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Legend */}
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
+            {selectedTrendClouds.map((account) => (
+              <div key={account} className="flex items-center space-x-2">
+                <div 
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: accountColors[(account - 1) % accountColors.length] }}
+                ></div>
+                <span className="text-sm text-gray-600">Cloud Account {account}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

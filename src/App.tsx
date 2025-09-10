@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 
+import ApplicationsTableView from './components/ApplicationsTableView';
 
 interface ApplicationData {
   cloudAccount: string;
@@ -57,6 +58,7 @@ const App: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [appSortBy, setAppSortBy] = useState('');
   const [appSortOrder, setAppSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [selectedAccountId, setSelectedAccountId] = useState('');
 
 
 
@@ -535,7 +537,13 @@ const App: React.FC = () => {
 
         {/* Dashboard Content */}
         <div className="flex-1 overflow-y-auto">
-          <Dashboard />
+          <Dashboard 
+            onViewApplications={() => setCurrentView('applications')}
+            onViewAccountDetails={(accountId) => {
+              setSelectedAccountId(accountId);
+              setCurrentView('accountDetails');
+            }}
+          />
         </div>
       </div>
     );
@@ -835,6 +843,14 @@ const App: React.FC = () => {
   }
 
   // Compute Modal Component (removed duplicate; now hoisted above)
+
+  const handleBackToDashboard = () => {
+    setCurrentView('dashboard');
+  };
+
+  const handleViewApplications = () => {
+    setCurrentView('applications-table');
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -1217,9 +1233,6 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
-      
-      {/* Compute Modal */}
-      {showComputeModal && <ComputeModal />}
     </div>
   );
 };

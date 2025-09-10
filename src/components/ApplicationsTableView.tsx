@@ -1,12 +1,12 @@
 import React from 'react';
 import { ArrowLeft, Search, Filter, ChevronDown } from 'lucide-react';
 
-interface AccountDetailsViewProps {
-  accountId: string;
+interface ApplicationsTableViewProps {
   onBack: () => void;
+  onCloudAccountClick: (accountId: string) => void;
 }
 
-const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ accountId, onBack }) => {
+const ApplicationsTableView: React.FC<ApplicationsTableViewProps> = ({ onBack, onCloudAccountClick }) => {
   const applications = [
     {
       id: 'app-1',
@@ -154,23 +154,23 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ accountId, onBa
     }
   ];
 
+  const handleCloudAccountClick = (accountName: string) => {
+    onCloudAccountClick(accountName);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span>Back to Dashboard</span>
-            </button>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {accountId === 'ca-123' ? 'Cloud Account 1' : accountId} - Applications
-          </h1>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={onBack}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Back</span>
+          </button>
+          <h1 className="text-2xl font-bold text-gray-900">All Applications</h1>
         </div>
       </div>
 
@@ -253,16 +253,13 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ accountId, onBa
                     Volume ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Applications
+                    Spends
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    VMs
+                    Potential Savings
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Storage
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Databases
+                    Efficiency
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Department
@@ -276,9 +273,12 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ accountId, onBa
                 {applications.map((app, index) => (
                   <tr key={app.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-blue-600 hover:text-blue-800 cursor-pointer font-medium">
+                      <button
+                        onClick={() => handleCloudAccountClick(app.cloudAccount)}
+                        className="text-blue-600 hover:text-blue-800 cursor-pointer font-medium hover:underline transition-colors"
+                      >
                         {app.cloudAccount}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-900">
                       {app.applicationName}
@@ -290,18 +290,17 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ accountId, onBa
                       {app.volumeId}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-semibold">
-                      {Math.floor(Math.random() * 20) + 5}
+                      {app.spends}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-green-600 font-semibold">
-                      {Math.floor(Math.random() * 50) + 10}
+                      {app.potentialSavings}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-gray-900 font-semibold">
-                        {Math.floor(Math.random() * 10) + 2} TB
+                      <span className={`font-semibold ${
+                        parseInt(app.efficiency) >= 85 ? 'text-green-600' : 'text-yellow-600'
+                      }`}>
+                        {app.efficiency}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                      {Math.floor(Math.random() * 8) + 2}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">
                       {app.department}
@@ -343,4 +342,4 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ accountId, onBa
   );
 };
 
-export default AccountDetailsView;
+export default ApplicationsTableView;
