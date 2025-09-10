@@ -190,4 +190,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
   const baseSpotData = [
     { account: 1, onDemand: 4500, spot: 1200, savings: 500 },
     { account: 2, onDemand: 1200, spot: 1200, savings: 0 },
-    { account: 3, onDemand: 
+    { account: 3, onDemand: 3000, spot: 1000, savings: 200 },
+    { account: 4, onDemand: 2800, spot: 900, savings: 180 },
+    { account: 5, onDemand: 3500, spot: 1100, savings: 250 },
+    { account: 6, onDemand: 4200, spot: 1300, savings: 400 },
+    { account: 7, onDemand: 2500, spot: 800, savings: 150 },
+    { account: 8, onDemand: 3200, spot: 1050, savings: 220 },
+    { account: 9, onDemand: 2900, spot: 950, savings: 190 },
+    { account: 10, onDemand: 3800, spot: 1200, savings: 300 }
+  ];
