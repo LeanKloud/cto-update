@@ -442,3 +442,4 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
     );
   };
 }
+export default Dashboard;
