@@ -199,3 +199,4 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
     { account: 9, onDemand: 2900, spot: 950, savings: 190 },
     { account: 10, onDemand: 3800, spot: 1200, savings: 300 }
   ];
+}
