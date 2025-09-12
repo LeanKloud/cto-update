@@ -72,6 +72,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
   const [showAttentionFilterDropdown, setShowAttentionFilterDropdown] = useState(false);
   const [attentionFilter, setAttentionFilter] = useState('All');
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [showAllAlerts, setShowAllAlerts] = useState(false);
   const getAttentionFilterOptions = () => {
     if (activeTab === 'Usage & Cost') {
       return ['All', 'Cloud Account 1', 'Cloud Account 2', 'Cloud Account 3'];
@@ -607,8 +608,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                   2
                 </div>
               </div>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                View all
+              <button 
+                onClick={() => setShowAllAlerts(!showAllAlerts)}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                {showAllAlerts ? 'Show less' : 'View all'}
                 <ChevronRight className="inline h-4 w-4 ml-1" />
               </button>
             </div>
@@ -652,50 +656,54 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                 </div>
               </div>
               
-              <div className="flex items-start space-x-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <div className="flex-shrink-0">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-medium text-orange-800">Resource Imbalance</h4>
-                  <p className="text-sm text-orange-700 mt-1">
-                    Cloud Account 1 has 3x more resources than other accounts
-                  </p>
-                  <button 
-                    onClick={() => setSelectedAccount('ca-123')}
-                    className="text-xs text-orange-600 hover:text-orange-800 underline mt-1 block"
-                  >
-                    View applications →
-                  </button>
-                  <p className="text-xs text-orange-600 mt-1">2 hours ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex-shrink-0">
-                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-medium text-red-800">Compute Outage</h4>
-                  <p className="text-sm text-red-700 mt-1">
-                    EC2 instance i-de0b6b3a7640000 in us-east-1 is unresponsive
-                  </p>
-                  <p className="text-xs text-red-600 mt-1">15 minutes ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex-shrink-0">
-                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-medium text-red-800">Disk Outage</h4>
-                  <p className="text-sm text-red-700 mt-1">
-                    EBS volume vol-6124fee993bc0000 experiencing I/O errors
-                  </p>
-                  <p className="text-xs text-red-600 mt-1">5 minutes ago</p>
-                </div>
-              </div>
+              {showAllAlerts && (
+                <>
+                  <div className="flex items-start space-x-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="flex-shrink-0">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-medium text-orange-800">Resource Imbalance</h4>
+                      <p className="text-sm text-orange-700 mt-1">
+                        Cloud Account 1 has 3x more resources than other accounts
+                      </p>
+                      <button 
+                        onClick={() => setSelectedAccount('ca-123')}
+                        className="text-xs text-orange-600 hover:text-orange-800 underline mt-1 block"
+                      >
+                        View applications →
+                      </button>
+                      <p className="text-xs text-orange-600 mt-1">2 hours ago</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex-shrink-0">
+                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-medium text-red-800">Compute Outage</h4>
+                      <p className="text-sm text-red-700 mt-1">
+                        EC2 instance i-de0b6b3a7640000 in us-east-1 is unresponsive
+                      </p>
+                      <p className="text-xs text-red-600 mt-1">15 minutes ago</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex-shrink-0">
+                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-medium text-red-800">Disk Outage</h4>
+                      <p className="text-sm text-red-700 mt-1">
+                        EBS volume vol-6124fee993bc0000 experiencing I/O errors
+                      </p>
+                      <p className="text-xs text-red-600 mt-1">5 minutes ago</p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -881,7 +889,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           {/* Right: On Spot savings bars */}
           <div className="col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">On Spot savings</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Spot Utilization Savings</h3>
               <div className="relative">
                 <button
                   onClick={() => setShowSpotSortDropdown(!showSpotSortDropdown)}
@@ -956,11 +964,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               </div>
 
               {/* X-axis labels */}
-              <div className="flex justify-between px-2 mt-3 ml-12">
+              <div className="flex justify-between px-4 mt-3">
                 {(() => {
                   const spotData = getSortedSpotData().filter(d => accountMatchesSearch(d.account));
                   return spotData.map((d) => (
-                    <div key={d.account} className="text-xs text-gray-600 text-center">
+                    <div key={d.account} className="text-xs text-gray-600 text-center flex-1">
                       Cloud<br />Account {d.account}
                     </div>
                   ));
