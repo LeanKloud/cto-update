@@ -344,15 +344,15 @@ const App: React.FC = () => {
   function ComputeModal() {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="rounded-lg shadow-xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-y-auto" style={{ backgroundColor: '#1e293b' }}>
           {/* Modal Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">
+          <div className="flex items-center justify-between p-6" style={{ borderBottom: '1px solid #334155' }}>
+            <h2 className="text-lg font-semibold text-white">
               Details & Recommendation of Compute ID -{selectedComputeId}
             </h2>
             <button
               onClick={handleCloseComputeModal}
-              className="p-2 hover:bg-gray-100 rounded-full"
+              className="p-2 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -365,82 +365,82 @@ const App: React.FC = () => {
             <div className="grid grid-cols-4 gap-8">
               {/* Compute Details Column */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-4 pb-2 border-b-2 border-black">
+                <h3 className="text-sm font-medium text-white mb-4 pb-2 border-b-2 border-blue-500">
                   Compute details
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Compute type</div>
-                    <div className="text-sm text-gray-900">{computeDetails.computeType}</div>
+                    <div className="text-sm text-slate-400 mb-1">Compute type</div>
+                    <div className="text-sm text-white">{computeDetails.computeType}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Compute ID</div>
-                    <div className="text-sm text-gray-900 font-mono">{computeDetails.computeId}</div>
+                    <div className="text-sm text-slate-400 mb-1">Compute ID</div>
+                    <div className="text-sm text-white font-mono">{computeDetails.computeId}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Server</div>
-                    <div className="text-sm text-gray-900">{computeDetails.server}</div>
+                    <div className="text-sm text-slate-400 mb-1">Server</div>
+                    <div className="text-sm text-white">{computeDetails.server}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Spends</div>
-                    <div className="text-sm text-gray-900 font-semibold">{computeDetails.spends}</div>
+                    <div className="text-sm text-slate-400 mb-1">Spends</div>
+                    <div className="text-sm text-white font-semibold">{computeDetails.spends}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Savings</div>
-                    <div className="text-sm text-gray-900 font-semibold">{computeDetails.savings}</div>
+                    <div className="text-sm text-slate-400 mb-1">Savings</div>
+                    <div className="text-sm text-white font-semibold">{computeDetails.savings}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Potential savings</div>
-                    <div className="text-sm text-gray-900 font-semibold">{computeDetails.potentialSavings}</div>
+                    <div className="text-sm text-slate-400 mb-1">Potential savings</div>
+                    <div className="text-sm text-green-400 font-semibold">{computeDetails.potentialSavings}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Efficiency</div>
-                    <div className="text-sm text-gray-900 font-semibold">{computeDetails.efficiency}</div>
+                    <div className="text-sm text-slate-400 mb-1">Efficiency</div>
+                    <div className="text-sm text-white font-semibold">{computeDetails.efficiency}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">CPU usage</div>
-                    <div className="text-sm text-gray-900 font-semibold">{computeDetails.cpuUsage}</div>
+                    <div className="text-sm text-slate-400 mb-1">CPU usage</div>
+                    <div className="text-sm text-white font-semibold">{computeDetails.cpuUsage}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Memory usage</div>
-                    <div className="text-sm text-gray-900 font-semibold">{computeDetails.memoryUsage}</div>
+                    <div className="text-sm text-slate-400 mb-1">Memory usage</div>
+                    <div className="text-sm text-white font-semibold">{computeDetails.memoryUsage}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Network</div>
-                    <div className="text-sm text-gray-900 font-semibold">{computeDetails.network}</div>
+                    <div className="text-sm text-slate-400 mb-1">Network</div>
+                    <div className="text-sm text-white font-semibold">{computeDetails.network}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Max CPU</div>
-                    <div className="text-sm text-gray-900 font-semibold">{computeDetails.maxCpu}</div>
+                    <div className="text-sm text-slate-400 mb-1">Max CPU</div>
+                    <div className="text-sm text-white font-semibold">{computeDetails.maxCpu}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600 mb-1">Max Memory</div>
-                    <div className="text-sm text-gray-900 font-semibold">{computeDetails.maxMemory}</div>
+                    <div className="text-sm text-slate-400 mb-1">Max Memory</div>
+                    <div className="text-sm text-white font-semibold">{computeDetails.maxMemory}</div>
                   </div>
                 </div>
               </div>
   
               {/* Current Column */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-4 pb-2 border-b-2 border-black">
+                <h3 className="text-sm font-medium text-white mb-4 pb-2 border-b-2 border-blue-500">
                   Current
                 </h3>
                 <div className="space-y-4">
-                  <div className="text-sm text-gray-900">{currentConfig.computeType}</div>
-                  <div className="text-sm text-gray-900 font-mono">{currentConfig.computeId}</div>
-                  <div className="text-sm text-gray-900">{currentConfig.server}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{currentConfig.spends}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{currentConfig.savings}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{currentConfig.potentialSavings}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{currentConfig.efficiency}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{currentConfig.cpuUsage}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{currentConfig.memoryUsage}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{currentConfig.network}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{currentConfig.maxCpu}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{currentConfig.maxMemory}</div>
+                  <div className="text-sm text-white">{currentConfig.computeType}</div>
+                  <div className="text-sm text-white font-mono">{currentConfig.computeId}</div>
+                  <div className="text-sm text-white">{currentConfig.server}</div>
+                  <div className="text-sm text-white font-semibold">{currentConfig.spends}</div>
+                  <div className="text-sm text-white font-semibold">{currentConfig.savings}</div>
+                  <div className="text-sm text-green-400 font-semibold">{currentConfig.potentialSavings}</div>
+                  <div className="text-sm text-white font-semibold">{currentConfig.efficiency}</div>
+                  <div className="text-sm text-white font-semibold">{currentConfig.cpuUsage}</div>
+                  <div className="text-sm text-white font-semibold">{currentConfig.memoryUsage}</div>
+                  <div className="text-sm text-white font-semibold">{currentConfig.network}</div>
+                  <div className="text-sm text-white font-semibold">{currentConfig.maxCpu}</div>
+                  <div className="text-sm text-white font-semibold">{currentConfig.maxMemory}</div>
                 </div>
                 <div className="mt-6">
-                  <button className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium">
+                  <button className="w-full px-4 py-2 text-slate-300 rounded-md text-sm font-medium" style={{ backgroundColor: '#334155' }}>
                     Selected
                   </button>
                 </div>
@@ -448,22 +448,22 @@ const App: React.FC = () => {
   
               {/* Safe Column */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-4 pb-2 border-b-2 border-black">
+                <h3 className="text-sm font-medium text-white mb-4 pb-2 border-b-2 border-blue-500">
                   Safe
                 </h3>
                 <div className="space-y-4">
-                  <div className="text-sm text-gray-900">{safeConfig.computeType}</div>
-                  <div className="text-sm text-gray-900 font-mono">{safeConfig.computeId}</div>
-                  <div className="text-sm text-gray-900">{safeConfig.server}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{safeConfig.spends}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{safeConfig.savings}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{safeConfig.potentialSavings}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{safeConfig.efficiency}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{safeConfig.cpuUsage}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{safeConfig.memoryUsage}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{safeConfig.network}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{safeConfig.maxCpu}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{safeConfig.maxMemory}</div>
+                  <div className="text-sm text-white">{safeConfig.computeType}</div>
+                  <div className="text-sm text-white font-mono">{safeConfig.computeId}</div>
+                  <div className="text-sm text-white">{safeConfig.server}</div>
+                  <div className="text-sm text-white font-semibold">{safeConfig.spends}</div>
+                  <div className="text-sm text-white font-semibold">{safeConfig.savings}</div>
+                  <div className="text-sm text-green-400 font-semibold">{safeConfig.potentialSavings}</div>
+                  <div className="text-sm text-white font-semibold">{safeConfig.efficiency}</div>
+                  <div className="text-sm text-white font-semibold">{safeConfig.cpuUsage}</div>
+                  <div className="text-sm text-white font-semibold">{safeConfig.memoryUsage}</div>
+                  <div className="text-sm text-white font-semibold">{safeConfig.network}</div>
+                  <div className="text-sm text-white font-semibold">{safeConfig.maxCpu}</div>
+                  <div className="text-sm text-white font-semibold">{safeConfig.maxMemory}</div>
                 </div>
                 <div className="mt-6">
                   <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
@@ -474,22 +474,22 @@ const App: React.FC = () => {
   
               {/* Alternate Column */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-4 pb-2 border-b-2 border-black">
+                <h3 className="text-sm font-medium text-white mb-4 pb-2 border-b-2 border-blue-500">
                   Alternate
                 </h3>
                 <div className="space-y-4">
-                  <div className="text-sm text-gray-900">{alternateConfig.computeType}</div>
-                  <div className="text-sm text-gray-900 font-mono">{alternateConfig.computeId}</div>
-                  <div className="text-sm text-gray-900">{alternateConfig.server}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{alternateConfig.spends}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{alternateConfig.savings}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{alternateConfig.potentialSavings}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{alternateConfig.efficiency}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{alternateConfig.cpuUsage}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{alternateConfig.memoryUsage}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{alternateConfig.network}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{alternateConfig.maxCpu}</div>
-                  <div className="text-sm text-gray-900 font-semibold">{alternateConfig.maxMemory}</div>
+                  <div className="text-sm text-white">{alternateConfig.computeType}</div>
+                  <div className="text-sm text-white font-mono">{alternateConfig.computeId}</div>
+                  <div className="text-sm text-white">{alternateConfig.server}</div>
+                  <div className="text-sm text-white font-semibold">{alternateConfig.spends}</div>
+                  <div className="text-sm text-white font-semibold">{alternateConfig.savings}</div>
+                  <div className="text-sm text-green-400 font-semibold">{alternateConfig.potentialSavings}</div>
+                  <div className="text-sm text-white font-semibold">{alternateConfig.efficiency}</div>
+                  <div className="text-sm text-white font-semibold">{alternateConfig.cpuUsage}</div>
+                  <div className="text-sm text-white font-semibold">{alternateConfig.memoryUsage}</div>
+                  <div className="text-sm text-white font-semibold">{alternateConfig.network}</div>
+                  <div className="text-sm text-white font-semibold">{alternateConfig.maxCpu}</div>
+                  <div className="text-sm text-white font-semibold">{alternateConfig.maxMemory}</div>
                 </div>
                 <div className="mt-6">
                   <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
@@ -567,9 +567,9 @@ const App: React.FC = () => {
   // Cloud Account Detail View
   if (showCloudAccountDetail) {
     return (
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen" style={{ backgroundColor: '#0f172a' }}>
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
+        <div className="w-64 shadow-sm flex flex-col" style={{ backgroundColor: '#1e293b', borderRight: '1px solid #334155' }}>
           {/* Main Navigation */}
           <div className="flex-1 py-6">
             <nav className="space-y-1 px-3">
@@ -614,15 +614,15 @@ const App: React.FC = () => {
         <div className="flex-1 overflow-hidden">
           <div className="h-full overflow-y-auto">
             {/* Header with Back Button */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4">
+            <div className="px-6 py-4" style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
               <div className="flex items-center space-x-4">
                 <button
                   onClick={handleBackToApplications}
-                  className="p-2 hover:bg-gray-100 rounded-full"
+                  className="text-slate-400 hover:text-white"
                 >
-                  <ChevronLeft className="h-5 w-5 text-gray-600" />
+                  ← Back
                 </button>
-                <h1 className="text-2xl font-semibold text-gray-900">
+                <h1 className="text-2xl font-semibold text-white">
                   {selectedCloudAccount} - Details
                 </h1>
               </div>
@@ -645,7 +645,7 @@ const App: React.FC = () => {
             </div>
 
             {/* Search and Filters (like All Applications) */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 m-6 mt-6">
+            <div className="p-6 m-6 mt-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -741,7 +741,7 @@ const App: React.FC = () => {
             
             {/* Resources Table (Compute / Storage / Database) */}
             <div className="px-6 py-6">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="rounded-lg shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                 {/* Table */}
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -798,15 +798,15 @@ const App: React.FC = () => {
                         }
                         
                         return data.map((resource, index) => (
-                          <tr key={index} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleComputeIdClick(resource.computeId)}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{resource.computeType}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 hover:text-blue-800">{resource.computeId}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{resource.currentServer}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">{resource.spends}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">{resource.savings}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">{resource.potentialSavings}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">{resource.efficiency}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                          <tr key={index} className="hover:opacity-80 cursor-pointer" onClick={() => handleComputeIdClick(resource.computeId)}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{resource.computeType}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-400 hover:text-blue-300">{resource.computeId}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{resource.currentServer}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-semibold">{resource.spends}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-semibold">{resource.savings}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-400 font-semibold">{resource.potentialSavings}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-semibold">{resource.efficiency}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
                               <ChevronRight className="h-4 w-4" />
                             </td>
                           </tr>
@@ -817,33 +817,15 @@ const App: React.FC = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="bg-white px-6 py-3 border-t border-gray-200 flex items-center justify-between">
-                  <div className="text-sm text-gray-700">
+                <div className="px-6 py-3 flex items-center justify-between" style={{ backgroundColor: '#334155', borderTop: '1px solid #475569' }}>
+                  <div className="text-sm text-slate-400">
                     Showing 12 of 90 results
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-gray-600">
-                      <ChevronLeft className="h-4 w-4" />
-                    </button>
-                    
-                    <div className="flex space-x-1">
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((page) => (
-                        <button
-                          key={page}
-                          className={`px-3 py-2 text-sm ${
-                            page === 1
-                              ? 'bg-blue-600 text-white'
-                              : 'text-gray-600 hover:bg-gray-100'
-                          } rounded`}
-                        >
-                          {page}
-                        </button>
-                      ))}
-                    </div>
-                    
-                    <button className="p-2 text-gray-400 hover:text-gray-600">
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
+                    <button className="px-3 py-1 text-sm text-slate-400 hover:text-white">←</button>
+                    <button className="px-3 py-1 text-sm bg-blue-600 text-white rounded">1</button>
+                    <button className="px-3 py-1 text-sm text-slate-400 hover:text-white">2</button>
+                    <button className="px-3 py-1 text-sm text-slate-400 hover:text-white">3</button>
                   </div>
                 </div>
               </div>
@@ -1143,9 +1125,9 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen" style={{ backgroundColor: '#0f172a' }}>
       {/* Sidebar */}
-      <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
+      <div className="w-64 shadow-sm flex flex-col" style={{ backgroundColor: '#1e293b', borderRight: '1px solid #334155' }}>
         {/* Main Navigation */}
         <div className="flex-1 py-6">
           <nav className="space-y-1 px-3">
@@ -1157,10 +1139,9 @@ const App: React.FC = () => {
                   if (item.label === 'Applications') handleNavigation('applications');
                 }}
                 className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-                  item.active
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  item.active ? 'text-white' : 'text-slate-400 hover:text-white'
                 }`}
+                style={{ backgroundColor: item.active ? '#334155' : 'transparent' }}
               >
                 <item.icon className="mr-3 h-5 w-5" />
                 {item.label}
@@ -1170,14 +1151,10 @@ const App: React.FC = () => {
         </div>
 
         {/* Bottom Navigation */}
-        <div className="border-t border-gray-200 py-4">
+        <div className="py-4" style={{ borderTop: '1px solid #334155' }}>
           <nav className="space-y-1 px-3">
             {bottomSidebarItems.map((item, index) => (
-              <a
-                key={index}
-                href="#"
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
-              >
+              <a key={index} href="#" className="flex items-center px-3 py-2 text-sm font-medium text-slate-400 rounded-md hover:text-white">
                 <item.icon className="mr-3 h-5 w-5" />
                 {item.label}
               </a>
@@ -1190,95 +1167,89 @@ const App: React.FC = () => {
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">
           {/* Header */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="px-6 py-4" style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
             <div className="flex items-center space-x-4">
 
-              <h1 className="text-2xl font-semibold text-gray-900">All Applications</h1>
+              <h1 className="text-2xl font-semibold text-white">All Applications</h1>
             </div>
           </div>
 
           {/* Cloud Account Summary Section */}
           <div className="px-6 py-6">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Cloud Account Summary</h2>
-              <p className="text-gray-600 mt-1">Overview of all cloud accounts with aggregated metrics</p>
+              <h2 className="text-xl font-semibold text-white">Cloud Account Summary</h2>
+              <p className="text-slate-400 mt-1">Overview of all cloud accounts with aggregated metrics</p>
             </div>
 
             {/* Summary Statistics */}
             <div className="grid grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-500 mb-1">Total Cloud Accounts</div>
-                <div className="text-3xl font-bold text-gray-900">{cloudAccountSummaryData.length}</div>
+              <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-1">Total Cloud Accounts</div>
+                <div className="text-3xl font-bold text-white">{cloudAccountSummaryData.length}</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-500 mb-1">Total Applications</div>
-                <div className="text-3xl font-bold text-gray-900">{cloudAccountSummaryData.reduce((sum, acc) => sum + acc.applications, 0)}</div>
+              <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-1">Total Applications</div>
+                <div className="text-3xl font-bold text-white">{cloudAccountSummaryData.reduce((sum, acc) => sum + acc.applications, 0)}</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-500 mb-1">Total VMs</div>
-                <div className="text-3xl font-bold text-gray-900">{cloudAccountSummaryData.reduce((sum, acc) => sum + acc.vms, 0)}</div>
+              <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-1">Total VMs</div>
+                <div className="text-3xl font-bold text-white">{cloudAccountSummaryData.reduce((sum, acc) => sum + acc.vms, 0)}</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-500 mb-1">Total Storage (TB)</div>
-                <div className="text-3xl font-bold text-gray-900">{cloudAccountSummaryData.reduce((sum, acc) => sum + acc.storage, 0)}</div>
+              <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-1">Total Storage (TB)</div>
+                <div className="text-3xl font-bold text-white">{cloudAccountSummaryData.reduce((sum, acc) => sum + acc.storage, 0)}</div>
               </div>
             </div>
 
             {/* Cloud Accounts Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div className="rounded-lg shadow-sm overflow-hidden mb-8" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full">
+                  <thead style={{ backgroundColor: '#334155' }}>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cloud Account</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VMs</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Storage (TB)</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Spends</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Savings</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Potential Savings</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Efficiency</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provider</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Cloud Account</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Applications</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">VMs</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Storage (TB)</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Total Spends</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Total Savings</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Potential Savings</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Efficiency</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Provider</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Department</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="divide-y" style={{ borderColor: '#334155' }}>
                     {cloudAccountSummaryData.map((account, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer" onClick={() => handleCloudAccountSummaryClick(account.cloudAccount)}>
+                      <tr key={index} className="hover:opacity-80">
+                        <td className="px-6 py-4 text-sm text-blue-400 cursor-pointer hover:text-blue-300" onClick={() => handleCloudAccountSummaryClick(account.cloudAccount)}>
                           {account.cloudAccount}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 text-sm text-white">
                           {account.applications}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 text-sm text-white">
                           {account.vms}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 text-sm text-white">
                           {account.storage}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                        <td className="px-6 py-4 text-sm text-white font-semibold">
                           {account.totalSpends}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                        <td className="px-6 py-4 text-sm text-white font-semibold">
                           {account.totalSavings}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                        <td className="px-6 py-4 text-sm text-green-400 font-semibold">
                           {account.potentialSavings}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                        <td className="px-6 py-4 text-sm text-white font-semibold">
                           {account.efficiency}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            account.provider === 'AWS' ? 'bg-orange-100 text-orange-800' :
-                            account.provider === 'Azure' ? 'bg-blue-100 text-blue-800' :
-                            'bg-green-100 text-green-800'
-                          }`}>
-                            {account.provider}
-                          </span>
+                        <td className="px-6 py-4 text-sm text-slate-300">
+                          {account.provider}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 text-sm text-slate-300">
                           {account.department}
                         </td>
                       </tr>
@@ -1294,37 +1265,38 @@ const App: React.FC = () => {
           {/* Statistics Cards */}
           <div className="px-6 py-6">
             <div className="grid grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-500 mb-1">Total Cloud Accounts</div>
-                <div className="text-3xl font-bold text-gray-900">30</div>
+              <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-1">Total Cloud Accounts</div>
+                <div className="text-3xl font-bold text-white">30</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-500 mb-1">Total Applications</div>
-                <div className="text-3xl font-bold text-gray-900">1200</div>
+              <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-1">Total Applications</div>
+                <div className="text-3xl font-bold text-white">1200</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-500 mb-1">Prod</div>
-                <div className="text-3xl font-bold text-gray-900">1200</div>
-                <div className="text-sm font-medium text-gray-500 mt-2">Non - Prod</div>
-                <div className="text-2xl font-semibold text-gray-900">200</div>
+              <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-1">Prod</div>
+                <div className="text-3xl font-bold text-white">1200</div>
+                <div className="text-sm font-medium text-slate-400 mt-2">Non - Prod</div>
+                <div className="text-2xl font-semibold text-white">200</div>
               </div>
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-sm font-medium text-gray-500 mb-1">Total spends</div>
-                <div className="text-3xl font-bold text-gray-900">$100</div>
+              <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-1">Total spends</div>
+                <div className="text-3xl font-bold text-white">$100</div>
               </div>
             </div>
 
             {/* Search and Filters */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="p-6 mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
                     placeholder="Search by Application name, Instance ID"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg text-white placeholder-slate-400"
+                    style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
                   />
                 </div>
                 
@@ -1334,7 +1306,8 @@ const App: React.FC = () => {
                     <select
                       value={selectedDepartment}
                       onChange={(e) => setSelectedDepartment(e.target.value)}
-                      className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="appearance-none px-4 py-2 pr-8 rounded-lg text-white"
+                      style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
                     >
                       <option value="All Departments">All Departments</option>
                       <option value="Engineering">Engineering</option>
@@ -1413,7 +1386,7 @@ const App: React.FC = () => {
             </div>
 
             {/* Data Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="rounded-lg shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
