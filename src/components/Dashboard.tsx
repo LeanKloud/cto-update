@@ -547,54 +547,54 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Key Metrics Cards */}
-        <div className="grid grid-cols-8 gap-6 mb-8">
+        <div className="grid grid-cols-8 gap-4 mb-8">
           {/* Total Cloud Accounts */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Total Cloud Accounts</div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">30</div>
-            <div className="text-sm text-gray-600">Efficiency 60%</div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="text-sm font-medium text-gray-500 mb-2">Total Cloud Accounts</div>
+            <div className="text-2xl font-bold text-gray-900 mb-1">30</div>
+            <div className="text-xs text-gray-500">Efficiency 60%</div>
           </div>
 
-          {/* VMs */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">VMs</div>
-            <div className="text-3xl font-bold text-gray-900">30000</div>
+          {/* Virtual Machines */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="text-sm font-medium text-gray-500 mb-2">Virtual Machines</div>
+            <div className="text-2xl font-bold text-gray-900">30,000</div>
           </div>
 
-          {/* App Instance */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">App Instance</div>
-            <div className="text-3xl font-bold text-gray-900">1200</div>
+          {/* Application Instances */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="text-sm font-medium text-gray-500 mb-2">Application Instances</div>
+            <div className="text-2xl font-bold text-gray-900">1,200</div>
           </div>
 
-          {/* DBs */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">DBs</div>
-            <div className="text-3xl font-bold text-gray-900">3000</div>
+          {/* Databases */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="text-sm font-medium text-gray-500 mb-2">Databases</div>
+            <div className="text-2xl font-bold text-gray-900">3,000</div>
           </div>
 
-          {/* Storage */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Storage</div>
-            <div className="text-3xl font-bold text-gray-900">300</div>
+          {/* Storage (GiB) */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="text-sm font-medium text-gray-500 mb-2">Storage (GiB)</div>
+            <div className="text-2xl font-bold text-gray-900">300</div>
           </div>
 
-          {/* Current Spends */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Current spends</div>
-            <div className="text-3xl font-bold text-gray-900">$100</div>
+          {/* Monthly Spend */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="text-sm font-medium text-gray-500 mb-2">Monthly Spend</div>
+            <div className="text-2xl font-bold text-gray-900">$100K</div>
           </div>
 
-          {/* Current Savings */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Current savings</div>
-            <div className="text-3xl font-bold text-gray-900">$10</div>
+          {/* Monthly Savings */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="text-sm font-medium text-gray-500 mb-2">Monthly Savings</div>
+            <div className="text-2xl font-bold text-gray-900">$10K</div>
           </div>
 
           {/* Potential Savings */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Potential savings</div>
-            <div className="text-3xl font-bold text-gray-900">$40</div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="text-sm font-medium text-gray-500 mb-2">Potential Savings</div>
+            <div className="text-2xl font-bold text-gray-900">$40K</div>
           </div>
         </div>
 
