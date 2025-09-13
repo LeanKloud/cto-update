@@ -1094,7 +1094,7 @@ const App: React.FC = () => {
 
                     return filteredApps.slice(0, 12).map((app, index) => (
                       <tr key={index} className="hover:opacity-80">
-                        <td className="px-6 py-4 text-sm text-blue-400">{selectedAccountForApps}</td>
+                        <td className="px-6 py-4 text-sm text-blue-400 cursor-pointer hover:text-blue-300" onClick={() => handleCloudAccountClick(selectedAccountForApps)}>{selectedAccountForApps}</td>
                         <td className="px-6 py-4 text-sm text-white cursor-pointer hover:text-blue-400" onClick={() => handleApplicationClick(app.applicationName)}>
                           {app.applicationName}
                         </td>
