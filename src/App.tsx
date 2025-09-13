@@ -258,6 +258,7 @@ const App: React.FC = () => {
   const handleBackToApplications = () => {
     setShowCloudAccountDetail(false);
     setSelectedCloudAccount('');
+    setCurrentView('cloudAccountApps');
   };
 
   const handleComputeIdClick = (computeId: string) => {
@@ -1029,8 +1030,6 @@ const App: React.FC = () => {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Cloud Account</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Application Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Instance ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Volume ID</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Spends</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Potential Savings</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Efficiency</th>
@@ -1098,8 +1097,6 @@ const App: React.FC = () => {
                         <td className="px-6 py-4 text-sm text-white cursor-pointer hover:text-blue-400" onClick={() => handleApplicationClick(app.applicationName)}>
                           {app.applicationName}
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-300 font-mono">{app.instanceId}</td>
-                        <td className="px-6 py-4 text-sm text-slate-300 font-mono">{app.volumeId}</td>
                         <td className="px-6 py-4 text-sm text-white font-semibold">{app.spends}</td>
                         <td className="px-6 py-4 text-sm text-green-400 font-semibold">{app.potentialSavings}</td>
                         <td className="px-6 py-4 text-sm text-white font-semibold">{app.efficiency}</td>
@@ -1243,13 +1240,12 @@ const App: React.FC = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Efficiency</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Provider</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {cloudAccountSummaryData.map((account, index) => (
                       <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer" onClick={() => handleCloudAccountSummaryClick(account.cloudAccount)}>
                           {account.cloudAccount}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -1284,15 +1280,6 @@ const App: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {account.department}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                          <button
-                            onClick={() => handleCloudAccountSummaryClick(account.cloudAccount)}
-                            className="flex items-center text-blue-600 hover:text-blue-800"
-                          >
-                            View Details
-                            <ChevronRight className="h-4 w-4 ml-1" />
-                          </button>
                         </td>
                       </tr>
                     ))}
