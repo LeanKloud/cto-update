@@ -52,13 +52,20 @@ const App: React.FC = () => {
   const [selectedCloudAccount, setSelectedCloudAccount] = useState('');
   const [showComputeModal, setShowComputeModal] = useState(false);
   const [selectedComputeId, setSelectedComputeId] = useState('');
-  const [currentView, setCurrentView] = useState<'dashboard' | 'applications'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'applications' | 'cloudAccountApps'>('dashboard');
   const [selectedDetailCategory, setSelectedDetailCategory] = useState<'Compute' | 'Storage' | 'Database'>('Compute');
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [appSortBy, setAppSortBy] = useState('');
   const [appSortOrder, setAppSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedAccountId, setSelectedAccountId] = useState('');
+  const [selectedAccountForApps, setSelectedAccountForApps] = useState('');
+  const [appsSearchTerm, setAppsSearchTerm] = useState('');
+  const [appsSelectedDepartment, setAppsSelectedDepartment] = useState('All Departments');
+  const [appsSelectedProvider, setAppsSelectedProvider] = useState('AWS');
+  const [appsSelectedPeriod, setAppsSelectedPeriod] = useState('2025, Q1');
+  const [appsSortBy, setAppsSortBy] = useState('Sort by');
+  const [appsSortOrder, setAppsSortOrder] = useState('Descending');
 
 
 
@@ -231,13 +238,20 @@ const App: React.FC = () => {
   };
 
   const handleCloudAccountSummaryClick = (cloudAccount: string) => {
-    setSelectedCloudAccount(cloudAccount);
-    setShowCloudAccountDetail(true);
+    setSelectedAccountForApps(cloudAccount);
+    setCurrentView('cloudAccountApps');
   };
 
   const handleCloudAccountClick = (cloudAccount: string) => {
     setSelectedCloudAccount(cloudAccount);
     setShowCloudAccountDetail(true);
+    setCurrentView('applications');
+  };
+
+  const handleApplicationClick = (applicationName: string) => {
+    setSelectedCloudAccount(selectedAccountForApps);
+    setShowCloudAccountDetail(true);
+    setCurrentView('applications');
   };
 
 
@@ -851,6 +865,285 @@ const App: React.FC = () => {
   const handleViewApplications = () => {
     setCurrentView('applications-table');
   };
+
+  // Cloud Account Applications View (intermediate step)
+  if (currentView === 'cloudAccountApps') {
+    return (
+      <div className="flex h-screen" style={{ backgroundColor: '#0f172a' }}>
+        {/* Sidebar */}
+        <div className="w-64 shadow-sm flex flex-col" style={{ backgroundColor: '#1e293b', borderRight: '1px solid #334155' }}>
+          <div className="flex-1 py-6">
+            <nav className="space-y-1 px-3">
+              {sidebarItems.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    if (item.label === 'Dashboard') handleNavigation('dashboard');
+                    if (item.label === 'Applications') handleNavigation('applications');
+                  }}
+                  className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                    item.active ? 'text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                  style={{ backgroundColor: item.active ? '#334155' : 'transparent' }}
+                >
+                  <item.icon className="mr-3 h-5 w-5" />
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+          <div className="py-4" style={{ borderTop: '1px solid #334155' }}>
+            <nav className="space-y-1 px-3">
+              {bottomSidebarItems.map((item, index) => (
+                <a key={index} href="#" className="flex items-center px-3 py-2 text-sm font-medium text-slate-400 rounded-md hover:text-white">
+                  <item.icon className="mr-3 h-5 w-5" />
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Header */}
+          <div className="px-6 py-4" style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
+            <div className="flex items-center space-x-4">
+              <button onClick={() => setCurrentView('applications')} className="text-slate-400 hover:text-white">
+                ← Back
+              </button>
+              <h1 className="text-2xl font-semibold text-white">{selectedAccountForApps} - Applications</h1>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="px-6 py-4" style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
+            <div className="flex items-center space-x-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by Application name, Instance ID"
+                  value={appsSearchTerm}
+                  onChange={(e) => setAppsSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-lg text-white placeholder-slate-400"
+                  style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
+                />
+              </div>
+              
+              <div className="relative">
+                <select
+                  value={appsSelectedDepartment}
+                  onChange={(e) => setAppsSelectedDepartment(e.target.value)}
+                  className="appearance-none px-3 py-2 pr-8 rounded-lg text-white"
+                  style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
+                >
+                  <option>All Departments</option>
+                  <option>Engineering</option>
+                  <option>Finance</option>
+                  <option>Product</option>
+                  <option>Marketing</option>
+                  <option>Operations</option>
+                  <option>Sales</option>
+                  <option>HR</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              </div>
+              
+              <div className="relative">
+                <select
+                  value={appsSelectedProvider}
+                  onChange={(e) => setAppsSelectedProvider(e.target.value)}
+                  className="appearance-none px-3 py-2 pr-8 rounded-lg text-white"
+                  style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
+                >
+                  <option>AWS</option>
+                  <option>Azure</option>
+                  <option>GCP</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              </div>
+              
+              <div className="relative">
+                <select
+                  value={appsSelectedPeriod}
+                  onChange={(e) => setAppsSelectedPeriod(e.target.value)}
+                  className="appearance-none px-3 py-2 pr-8 rounded-lg text-white"
+                  style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
+                >
+                  <option>2025, Q1</option>
+                  <option>2024, Q4</option>
+                  <option>2024, Q3</option>
+                  <option>2024, Q2</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              </div>
+              
+              <div className="relative">
+                <select
+                  value={appsSortBy}
+                  onChange={(e) => setAppsSortBy(e.target.value)}
+                  className="appearance-none px-3 py-2 pr-8 rounded-lg text-white"
+                  style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
+                >
+                  <option>Sort by</option>
+                  <option>Application Name</option>
+                  <option>Spends</option>
+                  <option>Potential Savings</option>
+                  <option>Efficiency</option>
+                  <option>Department</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              </div>
+              
+              <button
+                onClick={() => setAppsSortOrder(appsSortOrder === 'Ascending' ? 'Descending' : 'Ascending')}
+                className="flex items-center px-3 py-2 rounded-lg text-white"
+                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                {appsSortOrder}
+              </button>
+              
+              <button
+                onClick={() => {
+                  setAppsSearchTerm('');
+                  setAppsSelectedDepartment('All Departments');
+                  setAppsSelectedProvider('AWS');
+                  setAppsSelectedPeriod('2025, Q1');
+                  setAppsSortBy('Sort by');
+                  setAppsSortOrder('Descending');
+                }}
+                className="px-3 py-2 text-slate-400 hover:text-white"
+              >
+                Reset Filters
+              </button>
+            </div>
+          </div>
+
+          {/* Applications Table */}
+          <div className="p-6">
+            <div className="rounded-lg shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+              <table className="w-full">
+                <thead style={{ backgroundColor: '#334155' }}>
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Cloud Account</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Application Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Instance ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Volume ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Spends</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Potential Savings</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Efficiency</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Department</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Provider</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y" style={{ borderColor: '#334155' }}>
+                  {(() => {
+                    // Filter applications
+                    let filteredApps = applicationData.filter(app => {
+                      const matchesSearch = appsSearchTerm === '' || 
+                        app.applicationName.toLowerCase().includes(appsSearchTerm.toLowerCase()) ||
+                        app.instanceId.toLowerCase().includes(appsSearchTerm.toLowerCase());
+                      
+                      const matchesDepartment = appsSelectedDepartment === 'All Departments' || 
+                        app.department === appsSelectedDepartment;
+                      
+                      const matchesProvider = app.provider === appsSelectedProvider;
+                      
+                      return matchesSearch && matchesDepartment && matchesProvider;
+                    });
+
+                    // Sort applications
+                    if (appsSortBy !== 'Sort by') {
+                      filteredApps.sort((a, b) => {
+                        let aVal, bVal;
+                        
+                        switch (appsSortBy) {
+                          case 'Application Name':
+                            aVal = a.applicationName;
+                            bVal = b.applicationName;
+                            break;
+                          case 'Spends':
+                            aVal = parseFloat(a.spends.replace(/[$,k]/g, ''));
+                            bVal = parseFloat(b.spends.replace(/[$,k]/g, ''));
+                            break;
+                          case 'Potential Savings':
+                            aVal = parseFloat(a.potentialSavings.replace(/[$,k]/g, ''));
+                            bVal = parseFloat(b.potentialSavings.replace(/[$,k]/g, ''));
+                            break;
+                          case 'Efficiency':
+                            aVal = parseFloat(a.efficiency.replace('%', ''));
+                            bVal = parseFloat(b.efficiency.replace('%', ''));
+                            break;
+                          case 'Department':
+                            aVal = a.department;
+                            bVal = b.department;
+                            break;
+                          default:
+                            return 0;
+                        }
+                        
+                        if (typeof aVal === 'string') {
+                          return appsSortOrder === 'Ascending' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                        } else {
+                          return appsSortOrder === 'Ascending' ? aVal - bVal : bVal - aVal;
+                        }
+                      });
+                    }
+
+                    return filteredApps.slice(0, 12).map((app, index) => (
+                      <tr key={index} className="hover:opacity-80">
+                        <td className="px-6 py-4 text-sm text-blue-400">{selectedAccountForApps}</td>
+                        <td className="px-6 py-4 text-sm text-white cursor-pointer hover:text-blue-400" onClick={() => handleApplicationClick(app.applicationName)}>
+                          {app.applicationName}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-300 font-mono">{app.instanceId}</td>
+                        <td className="px-6 py-4 text-sm text-slate-300 font-mono">{app.volumeId}</td>
+                        <td className="px-6 py-4 text-sm text-white font-semibold">{app.spends}</td>
+                        <td className="px-6 py-4 text-sm text-green-400 font-semibold">{app.potentialSavings}</td>
+                        <td className="px-6 py-4 text-sm text-white font-semibold">{app.efficiency}</td>
+                        <td className="px-6 py-4 text-sm text-slate-300">{app.department}</td>
+                        <td className="px-6 py-4 text-sm text-slate-300">{app.provider}</td>
+                      </tr>
+                    ));
+                  })()}
+                </tbody>
+              </table>
+              <div className="px-6 py-3" style={{ backgroundColor: '#334155', borderTop: '1px solid #475569' }}>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-slate-400">
+                    {(() => {
+                      const filteredCount = applicationData.filter(app => {
+                        const matchesSearch = appsSearchTerm === '' || 
+                          app.applicationName.toLowerCase().includes(appsSearchTerm.toLowerCase()) ||
+                          app.instanceId.toLowerCase().includes(appsSearchTerm.toLowerCase());
+                        
+                        const matchesDepartment = appsSelectedDepartment === 'All Departments' || 
+                          app.department === appsSelectedDepartment;
+                        
+                        const matchesProvider = app.provider === appsSelectedProvider;
+                        
+                        return matchesSearch && matchesDepartment && matchesProvider;
+                      }).length;
+                      
+                      const showing = Math.min(12, filteredCount);
+                      return `Showing 1 to ${showing} of ${filteredCount} results`;
+                    })()} 
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button className="px-3 py-1 text-sm bg-blue-600 text-white rounded">1</button>
+                    <button className="px-3 py-1 text-sm text-slate-400 hover:text-white">2</button>
+                    <button className="px-3 py-1 text-sm text-slate-400 hover:text-white">3</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
