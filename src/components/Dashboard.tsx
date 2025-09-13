@@ -1177,113 +1177,64 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             ))}
           </div>
 
-          {/* Trend Chart */}
-          <div className="relative h-80 mt-6">
-            <svg width="100%" height="100%" viewBox="0 0 800 300" className="overflow-visible">
-              {/* Grid lines */}
-              {Array.from({ length: 6 }).map((_, i) => (
-                <line
-                  key={i}
-                  x1="60"
-                  y1={50 + i * 40}
-                  x2="740"
-                  y2={50 + i * 40}
-                  stroke="#f3f4f6"
-                  strokeWidth="1"
-                />
-              ))}
-              
-              {/* Y-axis */}
-              <line x1="60" y1="50" x2="60" y2="250" stroke="#9ca3af" strokeWidth="2"/>
-              
-              {/* X-axis */}
-              <line x1="60" y1="250" x2="740" y2="250" stroke="#9ca3af" strokeWidth="2"/>
-
-              {/* Trend lines */}
-              {selectedTrendClouds.map((account) => {
-                const data = trendData[selectedTrendMetric][account];
-                const color = accountColors[(account - 1) % accountColors.length];
+          {/* Heatmap */}
+          <div className="relative mt-6">
+            <div className="overflow-x-auto">
+              <div className="min-w-full">
+                {/* Quarter headers */}
+                <div className="flex mb-2">
+                  <div className="w-32"></div>
+                  {trendQuarters.map((quarter) => (
+                    <div key={quarter} className="flex-1 text-xs text-gray-600 text-center font-medium px-1">
+                      {quarter}
+                    </div>
+                  ))}
+                </div>
                 
-                const points = data.map((value, idx) => {
-                  const x = 60 + (idx * (680 / (trendQuarters.length - 1)));
+                {/* Heatmap rows */}
+                {selectedTrendClouds.map((account) => {
+                  const data = trendData[selectedTrendMetric][account];
                   const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
-                  const y = 250 - ((value / maxVal) * 200);
-                  return `${x},${y}`;
-                }).join(' ');
-
-                return (
-                  <g key={account}>
-                    <polyline
-                      points={points}
-                      fill="none"
-                      stroke={color}
-                      strokeWidth="2"
-                      className="hover:stroke-4"
-                    />
-                    {/* Data points */}
-                    {data.map((value, idx) => {
-                      const x = 60 + (idx * (680 / (trendQuarters.length - 1)));
-                      const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
-                      const y = 250 - ((value / maxVal) * 200);
-                      
-                      return (
-                        <circle
-                          key={idx}
-                          cx={x}
-                          cy={y}
-                          r="4"
-                          fill={color}
-                          className="hover:r-6 cursor-pointer"
-                          onMouseEnter={() => setHoveredTrendPoint({ account, quarterIdx: idx })}
-                          onMouseLeave={() => setHoveredTrendPoint(null)}
-                        />
-                      );
-                    })}
-                  </g>
-                );
-              })}
-
-              {/* X-axis labels */}
-              {trendQuarters.map((quarter, idx) => (
-                <text
-                  key={idx}
-                  x={60 + (idx * (680 / (trendQuarters.length - 1)))}
-                  y="270"
-                  textAnchor="middle"
-                  className="text-xs fill-gray-600"
-                >
-                  {quarter}
-                </text>
-              ))}
-
-              {/* Y-axis labels */}
-              {Array.from({ length: 6 }).map((_, i) => {
-                const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
-                const value = maxVal - (i * (maxVal / 5));
-                const suffix = selectedTrendMetric === 'Efficiency' ? '%' : 'k';
-                
-                return (
-                  <text
-                    key={i}
-                    x="50"
-                    y={55 + i * 40}
-                    textAnchor="end"
-                    className="text-xs fill-gray-600"
-                  >
-                    {value}{suffix}
-                  </text>
-                );
-              })}
-            </svg>
+                  const minVal = selectedTrendMetric === 'Efficiency' ? 0 : 0;
+                  
+                  return (
+                    <div key={account} className="flex items-center mb-1">
+                      <div className="w-32 text-sm text-gray-700 font-medium pr-4">
+                        Cloud Account {account}
+                      </div>
+                      {data.map((value, idx) => {
+                        const intensity = (value - minVal) / (maxVal - minVal);
+                        const opacity = Math.max(0.1, intensity);
+                        const bgColor = selectedTrendMetric === 'Efficiency' 
+                          ? `rgba(34, 197, 94, ${opacity})` // Green for efficiency
+                          : `rgba(59, 130, 246, ${opacity})`; // Blue for costs
+                        
+                        return (
+                          <div
+                            key={idx}
+                            className="flex-1 h-8 mx-1 rounded flex items-center justify-center text-xs font-medium cursor-pointer transition-all hover:scale-105"
+                            style={{ backgroundColor: bgColor }}
+                            onMouseEnter={() => setHoveredTrendPoint({ account, quarterIdx: idx })}
+                            onMouseLeave={() => setHoveredTrendPoint(null)}
+                          >
+                            {value}{selectedTrendMetric === 'Efficiency' ? '%' : 'k'}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
             {/* Tooltip */}
-            {hoveredTrendPoint && hoveredTrendPoint.account === 6 && hoveredTrendPoint.quarterIdx === 0 && (
+            {hoveredTrendPoint && (
               <div className="absolute bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-2 text-xs z-10 pointer-events-none"
                    style={{ 
-                     left: `${60 + (hoveredTrendPoint.quarterIdx * (680 / (trendQuarters.length - 1))) - 40}px`,
-                     top: '20px'
+                     left: `${200 + (hoveredTrendPoint.quarterIdx * 60)}px`,
+                     top: `${20 + (selectedTrendClouds.indexOf(hoveredTrendPoint.account) * 36)}px`
                    }}>
-                <div className="font-bold text-gray-900 mb-1">Cloud Account 6</div>
+                <div className="font-bold text-gray-900 mb-1">Cloud Account {hoveredTrendPoint.account}</div>
                 <div className="text-gray-600">{trendQuarters[hoveredTrendPoint.quarterIdx]}</div>
                 <div className="text-gray-600">
                   {selectedTrendMetric}: {trendData[selectedTrendMetric][hoveredTrendPoint.account][hoveredTrendPoint.quarterIdx]}
@@ -1294,16 +1245,26 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
-            {selectedTrendClouds.map((account) => (
-              <div key={account} className="flex items-center space-x-2">
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: accountColors[(account - 1) % accountColors.length] }}
-                ></div>
-                <span className="text-sm text-gray-600">Cloud Account {account}</span>
+          <div className="flex items-center justify-center gap-6 mt-6">
+            <div className="flex items-center space-x-2">
+              <div className="text-sm text-gray-600">Low</div>
+              <div className="flex space-x-1">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const opacity = (i + 1) * 0.2;
+                  const bgColor = selectedTrendMetric === 'Efficiency' 
+                    ? `rgba(34, 197, 94, ${opacity})` 
+                    : `rgba(59, 130, 246, ${opacity})`;
+                  return (
+                    <div 
+                      key={i}
+                      className="w-4 h-4 rounded"
+                      style={{ backgroundColor: bgColor }}
+                    ></div>
+                  );
+                })}
               </div>
-            ))}
+              <div className="text-sm text-gray-600">High</div>
+            </div>
           </div>
         </div>
       </div>
