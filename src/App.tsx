@@ -629,15 +629,15 @@ const App: React.FC = () => {
             </div>
 
             {/* Service Categories */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4">
+            <div style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }} className="px-6 py-4">
               <div className="flex space-x-8">
                 {(['Compute','Storage','Database'] as const).map(tab => (
                   <button
                     key={tab}
                     onClick={() => setSelectedDetailCategory(tab)}
-                    className={`pb-2 ${selectedDetailCategory === tab ? 'border-b-2 border-black' : ''}`}
+                    className={`pb-2 ${selectedDetailCategory === tab ? 'border-b-2 border-white' : ''}`}
                   >
-                    <span className={`text-sm font-medium ${selectedDetailCategory === tab ? 'text-gray-900' : 'text-gray-500'}`}>{tab}</span>
+                    <span className={`text-sm font-medium ${selectedDetailCategory === tab ? 'text-white' : 'text-slate-400'}`}>{tab}</span>
                   </button>
                 ))}
                 {/* Networking and Monitoring removed per request */}
@@ -648,13 +648,14 @@ const App: React.FC = () => {
             <div className="p-6 m-6 mt-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
                     placeholder="Search by type, ID, server..."
                     value={searchTerm}
                     onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 rounded-md text-white placeholder-slate-400"
+                    style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
                   />
                 </div>
 
@@ -664,7 +665,8 @@ const App: React.FC = () => {
                     <select
                       value={selectedDepartment}
                       onChange={(e) => { setSelectedDepartment(e.target.value); setCurrentPage(1); }}
-                      className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
+                      style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
                     >
                       <option value="All Departments">All Departments</option>
                       <option value="Engineering">Engineering</option>
@@ -675,33 +677,35 @@ const App: React.FC = () => {
                       <option value="Operations">Operations</option>
                       <option value="Product">Product</option>
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                   </div>
                   <div className="relative">
                     <select
                       value={selectedProvider}
                       onChange={(e) => { setSelectedProvider(e.target.value); setCurrentPage(1); }}
-                      className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
+                      style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
                     >
                       <option value="All Providers">All Providers</option>
                       <option value="AWS">AWS</option>
                       <option value="Azure">Azure</option>
                       <option value="GCP">GCP</option>
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                   </div>
                   <div className="relative">
                     <select
                       value={selectedPeriod}
                       onChange={(e) => { setSelectedPeriod(e.target.value); setCurrentPage(1); }}
-                      className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="appearance-none rounded-md px-4 py-2 pr-8 text-white"
+                      style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
                     >
                       <option value="2025, Q1">2025, Q1</option>
                       <option value="2024, Q4">2024, Q4</option>
                       <option value="2024, Q3">2024, Q3</option>
                       <option value="2024, Q2">2024, Q2</option>
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                   </div>
 
                   {/* Sort controls */}
@@ -709,7 +713,8 @@ const App: React.FC = () => {
                     <select
                       value={sortBy}
                       onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}
-                      className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="appearance-none rounded-lg px-3 py-2 pr-8 text-sm text-white"
+                      style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
                     >
                       <option value="">Sort by</option>
                       <option value="computeType">{selectedDetailCategory === 'Compute' ? 'Compute Type' : selectedDetailCategory === 'Storage' ? 'Storage Type' : 'Database Type'}</option>
@@ -720,18 +725,20 @@ const App: React.FC = () => {
                       <option value="potentialSavings">Potential Savings</option>
                       <option value="efficiency">Efficiency</option>
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                   </div>
                   <button
                     onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                    className={`flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm ${sortOrder === 'asc' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-700'}`}
+                    className={`flex items-center px-3 py-2 rounded-md text-sm ${sortOrder === 'asc' ? 'text-blue-400' : 'text-slate-300'}`}
+                    style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
                   >
                     <Filter className="h-4 w-4 mr-2" />
                     {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
                   </button>
                   <button
                     onClick={() => { setSearchTerm(''); setSelectedDepartment('All Departments'); setSelectedProvider('All Providers'); setSelectedPeriod('2025, Q1'); setSortBy(''); setSortOrder('desc'); setCurrentPage(1); }}
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50"
+                    className="px-3 py-2 rounded-md text-sm text-slate-300 hover:text-white"
+                    style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
                   >
                     Reset Filters
                   </button>
@@ -744,25 +751,25 @@ const App: React.FC = () => {
               <div className="rounded-lg shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                 {/* Table */}
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full">
+                    <thead style={{ backgroundColor: '#334155' }}>
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                           {selectedDetailCategory === 'Compute' ? 'COMPUTE TYPE' : selectedDetailCategory === 'Storage' ? 'STORAGE TYPE' : 'DATABASE TYPE'}
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                           {selectedDetailCategory === 'Compute' ? 'COMPUTE ID' : selectedDetailCategory === 'Storage' ? 'STORAGE ID' : 'DATABASE ID'}
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
                           {selectedDetailCategory === 'Compute' ? 'CURRENT SERVER' : selectedDetailCategory === 'Storage' ? 'CURRENT TIER' : 'DB ENGINE'}
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SPENDS</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SAVINGS</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">POTENTIAL SAVINGS</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">EFFICIENCY</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">SPENDS</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">SAVINGS</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">POTENTIAL SAVINGS</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">EFFICIENCY</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="divide-y" style={{ borderColor: '#334155' }}>
                       {(() => {
                         let data = selectedDetailCategory === 'Compute' ? computeResources : selectedDetailCategory === 'Storage' ? storageResources : databaseResources;
                         // Search filter on resource rows
@@ -798,7 +805,7 @@ const App: React.FC = () => {
                         }
                         
                         return data.map((resource, index) => (
-                          <tr key={index} className="hover:opacity-80 cursor-pointer" onClick={() => handleComputeIdClick(resource.computeId)}>
+                          <tr key={index} className="hover:bg-slate-600 cursor-pointer" onClick={() => handleComputeIdClick(resource.computeId)}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{resource.computeType}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-400 hover:text-blue-300">{resource.computeId}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{resource.currentServer}</td>
@@ -1075,8 +1082,8 @@ const App: React.FC = () => {
 
                     return filteredApps.slice(0, 12).map((app, index) => (
                       <tr key={index} className="hover:opacity-80">
-                        <td className="px-6 py-4 text-sm text-blue-400 cursor-pointer hover:text-blue-300" onClick={() => handleCloudAccountClick(selectedAccountForApps)}>{selectedAccountForApps}</td>
-                        <td className="px-6 py-4 text-sm text-white cursor-pointer hover:text-blue-400" onClick={() => handleApplicationClick(app.applicationName)}>
+                        <td className="px-6 py-4 text-sm text-white">{selectedAccountForApps}</td>
+                        <td className="px-6 py-4 text-sm text-blue-400 cursor-pointer hover:text-blue-300" onClick={() => handleApplicationClick(app.applicationName)}>
                           {app.applicationName}
                         </td>
                         <td className="px-6 py-4 text-sm text-white font-semibold">{app.spends}</td>
