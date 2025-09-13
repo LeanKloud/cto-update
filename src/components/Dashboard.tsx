@@ -491,9 +491,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen" style={{ backgroundColor: '#0f172a' }}>
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="px-6 py-4" style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* Left side - could add breadcrumb or title */}
           <div></div>
@@ -501,13 +501,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           {/* Center - Search Bar */}
           <div className="flex-1 max-w-md mx-8">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search by Cloud account or Application..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 rounded-lg text-white placeholder-slate-400"
+                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
               />
             </div>
           </div>
@@ -518,27 +519,29 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               <select
                 value={selectedProvider}
                 onChange={(e) => setSelectedProvider(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
+                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
               >
                 <option value="All Providers">All Providers</option>
                 <option value="AWS">AWS</option>
                 <option value="Azure">Azure</option>
                 <option value="GCP">GCP</option>
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             </div>
 
             <div className="relative">
               <select
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
+                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
               >
                 <option value="2025, Q1">2025, Q1</option>
                 <option value="2024, Q4">2024, Q4</option>
                 <option value="2024, Q3">2024, Q3</option>
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -549,68 +552,68 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-8 gap-4 mb-8">
           {/* Total Cloud Accounts */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm font-medium text-gray-500 mb-2">Total Cloud Accounts</div>
-            <div className="text-2xl font-bold text-gray-900 mb-1">30</div>
-            <div className="text-xs text-gray-500">Efficiency 60%</div>
+          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <div className="text-sm font-medium text-slate-400 mb-2">Total Cloud Accounts</div>
+            <div className="text-2xl font-bold text-white mb-1">30</div>
+            <div className="text-xs text-slate-400">Efficiency 60%</div>
           </div>
 
           {/* Virtual Machines */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm font-medium text-gray-500 mb-2">Virtual Machines</div>
-            <div className="text-2xl font-bold text-gray-900">30,000</div>
+          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <div className="text-sm font-medium text-slate-400 mb-2">Virtual Machines</div>
+            <div className="text-2xl font-bold text-white">30,000</div>
           </div>
 
           {/* Application Instances */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm font-medium text-gray-500 mb-2">Application Instances</div>
-            <div className="text-2xl font-bold text-gray-900">1,200</div>
+          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <div className="text-sm font-medium text-slate-400 mb-2">Application Instances</div>
+            <div className="text-2xl font-bold text-white">1,200</div>
           </div>
 
           {/* Databases */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm font-medium text-gray-500 mb-2">Databases</div>
-            <div className="text-2xl font-bold text-gray-900">3,000</div>
+          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <div className="text-sm font-medium text-slate-400 mb-2">Databases</div>
+            <div className="text-2xl font-bold text-white">3,000</div>
           </div>
 
           {/* Storage (GiB) */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm font-medium text-gray-500 mb-2">Storage (GiB)</div>
-            <div className="text-2xl font-bold text-gray-900">300</div>
+          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <div className="text-sm font-medium text-slate-400 mb-2">Storage (GiB)</div>
+            <div className="text-2xl font-bold text-white">300</div>
           </div>
 
           {/* Monthly Spend */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm font-medium text-gray-500 mb-2">Monthly Spend</div>
-            <div className="text-2xl font-bold text-gray-900">$100K</div>
+          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <div className="text-sm font-medium text-slate-400 mb-2">Monthly Spend</div>
+            <div className="text-2xl font-bold text-white">$100K</div>
           </div>
 
           {/* Monthly Savings */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm font-medium text-gray-500 mb-2">Monthly Savings</div>
-            <div className="text-2xl font-bold text-gray-900">$10K</div>
+          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <div className="text-sm font-medium text-slate-400 mb-2">Monthly Savings</div>
+            <div className="text-2xl font-bold text-white">$10K</div>
           </div>
 
           {/* Potential Savings */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm font-medium text-gray-500 mb-2">Potential Savings</div>
-            <div className="text-2xl font-bold text-gray-900">$40K</div>
+          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <div className="text-sm font-medium text-slate-400 mb-2">Potential Savings</div>
+            <div className="text-2xl font-bold text-white">$40K</div>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-6">
           {/* Alerts Section - Full Width */}
-          <div className="col-span-3 bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="col-span-3 rounded-lg shadow-sm p-6 mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
-                <h3 className="text-lg font-semibold text-gray-900 mr-2">Alerts</h3>
+                <h3 className="text-lg font-semibold text-white mr-2">Alerts</h3>
                 <div className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   2
                 </div>
               </div>
               <button 
                 onClick={() => setShowAllAlerts(!showAllAlerts)}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium"
               >
                 {showAllAlerts ? 'Show less' : 'View all'}
                 <ChevronRight className="inline h-4 w-4 ml-1" />
@@ -709,24 +712,25 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
         </div>
 
         {/* Spends & Savings Chart - Full Width Below Alerts */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Spends & Savings</h3>
+            <h3 className="text-lg font-semibold text-white">Spends & Savings</h3>
             <div className="relative">
               <button
                 onClick={() => setShowSortDropdown(!showSortDropdown)}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="p-2 rounded-lg hover:opacity-80"
+                style={{ border: '1px solid #475569' }}
                 aria-label="Sort"
               >
-                <BarChart3 className="h-5 w-5 text-gray-500" />
+                <BarChart3 className="h-5 w-5 text-slate-400" />
               </button>
               {showSortDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="absolute right-0 top-full mt-2 w-72 rounded-lg shadow-lg z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                   {sortOptions.map((option) => (
                     <button
                       key={option}
                       onClick={() => { setSortBy(option); setShowSortDropdown(false); }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg"
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:opacity-80 first:rounded-t-lg last:rounded-b-lg"
                     >
                       {option}
                     </button>
@@ -808,7 +812,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             {/* X-axis Labels */}
             <div className="flex justify-between px-4 mb-4">
               {filteredChartData.map((data) => (
-                <div key={data.account} className="text-xs text-gray-600 text-center flex-1">
+                <div key={data.account} className="text-xs text-slate-400 text-center flex-1">
                   Cloud<br />Account {data.account}
                 </div>
               ))}
@@ -818,19 +822,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-300 rounded-full"></div>
-                <span className="text-gray-600">Spendings</span>
+                <span className="text-slate-400">Spendings</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-blue-300 rounded-full"></div>
-                <span className="text-gray-600">Savings</span>
+                <span className="text-slate-400">Savings</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-gray-600">Potential Savings</span>
+                <span className="text-slate-400">Potential Savings</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                <span className="text-gray-600">Efficiency</span>
+                <span className="text-slate-400">Efficiency</span>
               </div>
             </div>
           </div>
@@ -839,8 +843,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
         {/* Two-column section replicating reference (Instance breakdown + On Spot savings) */}
         <div className="grid grid-cols-3 gap-6 mt-6">
           {/* Left: Instance breakdown donut */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Instance breakdown</h3>
+          <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <h3 className="text-lg font-semibold text-white mb-4">Instance breakdown</h3>
             <div className="flex items-center">
               {/* Donut */}
               <div className="relative" style={{ width: 220, height: 220 }}>
@@ -854,20 +858,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                 ></div>
                 {/* Inner hole */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-white rounded-full" style={{ width: 140, height: 140 }}></div>
-                  <div className="absolute text-sm font-semibold text-gray-800">70%</div>
+                  <div className="rounded-full" style={{ width: 140, height: 140, backgroundColor: '#1e293b' }}></div>
+                  <div className="absolute text-sm font-semibold text-white">70%</div>
                 </div>
 
                 {/* Tooltip callout for On Demand */}
                 <div className="absolute -right-6 top-16">
-                  <div className="relative bg-white border border-gray-200 rounded-lg shadow px-4 py-3 text-sm text-gray-700">
-                    <div className="font-semibold text-gray-900 mb-1">On Demand</div>
+                  <div className="relative rounded-lg shadow px-4 py-3 text-sm text-white" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                    <div className="font-semibold text-white mb-1">On Demand</div>
                     <div>Usage - 30%</div>
                     <div>Prod - 25%</div>
                     <div>Non Prod - 5%</div>
                     {/* Arrow */}
-                    <div className="absolute -left-2 top-6 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-gray-200"></div>
-                    <div className="absolute -left-[7px] top-[26px] w-0 h-0 border-t-7 border-b-7 border-r-7 border-t-transparent border-b-transparent border-r-white"></div>
+                    <div className="absolute -left-2 top-6 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent" style={{ borderRightColor: '#334155' }}></div>
+                    <div className="absolute -left-[7px] top-[26px] w-0 h-0 border-t-7 border-b-7 border-r-7 border-t-transparent border-b-transparent" style={{ borderRightColor: '#1e293b' }}></div>
                   </div>
                 </div>
               </div>
@@ -876,30 +880,31 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               <div className="ml-8 space-y-3">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CAF50' }}></div>
-                  <span className="text-gray-700 text-sm">On Demand</span>
+                  <span className="text-slate-400 text-sm">On Demand</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#00BCD4' }}></div>
-                  <span className="text-gray-700 text-sm">On Spot</span>
+                  <span className="text-slate-400 text-sm">On Spot</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right: On Spot savings bars */}
-          <div className="col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="col-span-2 rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">Spot Utilization Savings</h3>
+              <h3 className="text-lg font-semibold text-white">Spot Utilization Savings</h3>
               <div className="relative">
                 <button
                   onClick={() => setShowSpotSortDropdown(!showSpotSortDropdown)}
-                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="p-2 rounded-lg hover:opacity-80"
+                  style={{ border: '1px solid #475569' }}
                   aria-label="Sort On Spot"
                 >
-                  <BarChart3 className="h-5 w-5 text-gray-500" />
+                  <BarChart3 className="h-5 w-5 text-slate-400" />
                 </button>
                 {showSpotSortDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                  <div className="absolute right-0 top-full mt-2 w-72 rounded-lg shadow-lg z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                     {[
                       'Savings (Highest to Lowest)',
                       'Savings (Lowest to Highest)',
@@ -911,7 +916,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       <button
                         key={option}
                         onClick={() => { setSpotSortBy(option); setShowSpotSortDropdown(false); }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg"
+                        className="w-full text-left px-4 py-2 text-sm text-white hover:opacity-80 first:rounded-t-lg last:rounded-b-lg"
                       >
                         {option}
                       </button>
@@ -968,7 +973,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                 {(() => {
                   const spotData = getSortedSpotData().filter(d => accountMatchesSearch(d.account));
                   return spotData.map((d) => (
-                    <div key={d.account} className="text-xs text-gray-600 text-center flex-1">
+                    <div key={d.account} className="text-xs text-slate-400 text-center flex-1">
                       Cloud<br />Account {d.account}
                     </div>
                   ));
@@ -979,15 +984,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-[#4CAF50] rounded-full"></div>
-                  <span className="text-gray-600">On Demand</span>
+                  <span className="text-slate-400">On Demand</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-[#00BCD4] rounded-full"></div>
-                  <span className="text-gray-600">Spot</span>
+                  <span className="text-slate-400">Spot</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-[#f28b82] rounded-full"></div>
-                  <span className="text-gray-600">Savings on Spot</span>
+                  <span className="text-slate-400">Savings on Spot</span>
                 </div>
               </div>
             </div>
@@ -1119,26 +1124,27 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
         )}
 
         {/* Compare cost across Quarters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
+        <div className="rounded-lg shadow-sm p-6 mt-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Compare cost across Quarters</h3>
+            <h3 className="text-lg font-semibold text-white">Compare cost across Quarters</h3>
             <div className="relative w-64">
               <button
-                className="w-full flex items-center justify-between border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm text-white hover:opacity-80"
+                style={{ border: '1px solid #475569' }}
                 onClick={() => setShowCloudPicker(!showCloudPicker)}
               >
                 <span>Selected: {selectedTrendClouds.length} clouds</span>
-                <ChevronDown className="h-4 w-4 text-gray-400" />
+                <ChevronDown className="h-4 w-4 text-slate-400" />
               </button>
               {showCloudPicker && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
+                <div className="absolute right-0 top-full mt-2 w-64 rounded-lg shadow-lg z-10 p-2" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                   <div className="flex items-center justify-between px-2 py-1">
-                    <button className="text-xs text-blue-600 hover:underline" onClick={() => setSelectedTrendClouds(Array.from({ length: 10 }, (_, i) => i + 1))}>Select all</button>
-                    <button className="text-xs text-gray-500 hover:underline" onClick={() => setSelectedTrendClouds([])}>Clear</button>
+                    <button className="text-xs text-blue-400 hover:underline" onClick={() => setSelectedTrendClouds(Array.from({ length: 10 }, (_, i) => i + 1))}>Select all</button>
+                    <button className="text-xs text-slate-400 hover:underline" onClick={() => setSelectedTrendClouds([])}>Clear</button>
                   </div>
                   <div className="max-h-48 overflow-y-auto mt-1 space-y-1">
                     {Array.from({ length: 10 }, (_, idx) => idx + 1).map((acc) => (
-                      <label key={acc} className="flex items-center space-x-2 px-2 py-1 text-sm hover:bg-gray-50 rounded cursor-pointer">
+                      <label key={acc} className="flex items-center space-x-2 px-2 py-1 text-sm hover:opacity-80 rounded cursor-pointer">
                         <input
                           type="checkbox"
                           checked={selectedTrendClouds.includes(acc)}
@@ -1151,7 +1157,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                           }}
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
-                        <span>Cloud Account {acc}</span>
+                        <span className="text-white">Cloud Account {acc}</span>
                       </label>
                     ))}
                   </div>
@@ -1199,7 +1205,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                   
                   return (
                     <div key={account} className="flex items-center mb-1">
-                      <div className="w-32 text-sm text-gray-700 font-medium pr-4">
+                      <div className="w-32 text-sm text-white font-medium pr-4">
                         Cloud Account {account}
                       </div>
                       {data.map((value, idx) => {
@@ -1229,14 +1235,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
 
             {/* Tooltip */}
             {hoveredTrendPoint && (
-              <div className="absolute bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-2 text-xs z-10 pointer-events-none"
+              <div className="absolute shadow-lg rounded-lg px-3 py-2 text-xs z-10 pointer-events-none"
                    style={{ 
+                     backgroundColor: '#1e293b',
+                     border: '1px solid #334155',
                      left: `${200 + (hoveredTrendPoint.quarterIdx * 60)}px`,
                      top: `${20 + (selectedTrendClouds.indexOf(hoveredTrendPoint.account) * 36)}px`
                    }}>
-                <div className="font-bold text-gray-900 mb-1">Cloud Account {hoveredTrendPoint.account}</div>
-                <div className="text-gray-600">{trendQuarters[hoveredTrendPoint.quarterIdx]}</div>
-                <div className="text-gray-600">
+                <div className="font-bold text-white mb-1">Cloud Account {hoveredTrendPoint.account}</div>
+                <div className="text-slate-400">{trendQuarters[hoveredTrendPoint.quarterIdx]}</div>
+                <div className="text-slate-400">
                   {selectedTrendMetric}: {trendData[selectedTrendMetric][hoveredTrendPoint.account][hoveredTrendPoint.quarterIdx]}
                   {selectedTrendMetric === 'Efficiency' ? '%' : 'k'}
                 </div>
@@ -1247,7 +1255,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           {/* Legend */}
           <div className="flex items-center justify-center gap-6 mt-6">
             <div className="flex items-center space-x-2">
-              <div className="text-sm text-gray-600">Low</div>
+              <div className="text-sm text-slate-400">Low</div>
               <div className="flex space-x-1">
                 {Array.from({ length: 5 }).map((_, i) => {
                   const opacity = (i + 1) * 0.2;
@@ -1263,7 +1271,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                   );
                 })}
               </div>
-              <div className="text-sm text-gray-600">High</div>
+              <div className="text-sm text-slate-400">High</div>
             </div>
           </div>
         </div>

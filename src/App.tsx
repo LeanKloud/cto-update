@@ -507,9 +507,9 @@ const App: React.FC = () => {
   // If dashboard view is selected, show dashboard
   if (currentView === 'dashboard') {
     return (
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen" style={{ backgroundColor: '#0f172a' }}>
         {/* Sidebar */}
-        <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
+        <div className="w-64 shadow-sm flex flex-col" style={{ backgroundColor: '#1e293b', borderRight: '1px solid #334155' }}>
           {/* Main Navigation */}
           <div className="flex-1 py-6">
             <nav className="space-y-1 px-3">
@@ -521,10 +521,9 @@ const App: React.FC = () => {
                     if (item.label === 'Applications') handleNavigation('applications');
                   }}
                   className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-                    item.active
-                      ? 'bg-gray-100 text-gray-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    item.active ? 'text-white' : 'text-slate-400 hover:text-white'
                   }`}
+                  style={{ backgroundColor: item.active ? '#334155' : 'transparent' }}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
                   {item.label}
@@ -534,13 +533,13 @@ const App: React.FC = () => {
           </div>
 
           {/* Bottom Navigation */}
-          <div className="border-t border-gray-200 py-4">
+          <div className="py-4" style={{ borderTop: '1px solid #334155' }}>
             <nav className="space-y-1 px-3">
               {bottomSidebarItems.map((item, index) => (
                 <a
                   key={index}
                   href="#"
-                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900"
+                  className="flex items-center px-3 py-2 text-sm font-medium text-slate-400 rounded-md hover:text-white"
                 >
                   <item.icon className="mr-3 h-5 w-5" />
                   {item.label}
