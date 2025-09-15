@@ -760,13 +760,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                     onClick={() => handleChartBarClick(data.account)}
                   >
                     {/* Tooltip */}
-                    {hoveredAccount === data.account && data.account === 6 && (
-                      <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 text-sm whitespace-nowrap z-10">
-                        <div className="font-bold text-gray-900 mb-2">Cloud Account 6</div>
-                        <div className="text-gray-600 mb-1">Spends - $700k</div>
-                        <div className="text-gray-600 mb-1">Savings - $600k</div>
-                        <div className="text-gray-600 mb-1">Potential savings - $650k</div>
-                        <div className="text-gray-600">Efficiency - 90%</div>
+                    {hoveredAccount === data.account && (
+                      <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 shadow-lg rounded-lg px-4 py-3 text-sm whitespace-nowrap z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                        <div className="font-bold text-white mb-2">Cloud Account {data.account}</div>
+                        <div className="text-slate-300 mb-1">Spends - ${data.spendings}k</div>
+                        <div className="text-slate-300 mb-1">Savings - ${data.savings}k</div>
+                        <div className="text-slate-300 mb-1">Potential savings - ${data.potential}k</div>
+                        <div className="text-slate-300">Efficiency - {data.efficiency}%</div>
                       </div>
                     )}
 
@@ -938,13 +938,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                      onMouseLeave={() => setHoveredSpotAccount(null)}
                      onClick={() => { setSelectedSpotAccountForDetails(data.account); setShowSpotDetails(true); }}
                    >
-                     {hoveredSpotAccount === data.account && data.account === 1 && (
-                       <div className="absolute -top-28 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-2 text-xs z-10 whitespace-nowrap">
-                         <div className="font-bold text-gray-900 mb-1">Cloud Account 1</div>
-                         <div className="text-gray-600">On Spot Savings - $500k</div>
-                         <div className="text-gray-600">On Spot cost - $700k</div>
-                         <div className="text-gray-600">On Demand cost - $1200k</div>
-                         <div className="text-gray-600">Savings - 55%</div>
+                     {hoveredSpotAccount === data.account && (
+                       <div className="absolute -top-28 left-1/2 transform -translate-x-1/2 shadow-lg rounded-lg px-3 py-2 text-xs z-10 whitespace-nowrap" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                         <div className="font-bold text-white mb-1">Cloud Account {data.account}</div>
+                         <div className="text-slate-300">On Spot Savings - ${data.savings}k</div>
+                         <div className="text-slate-300">On Spot cost - ${data.spot}k</div>
+                         <div className="text-slate-300">On Demand cost - ${data.onDemand}k</div>
+                         <div className="text-slate-300">Savings - {Math.round((data.savings / data.onDemand) * 100)}%</div>
                        </div>
                      )}
 
