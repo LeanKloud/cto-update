@@ -11,6 +11,7 @@ import {
   ArrowUpDown,
   Download
 } from 'lucide-react';
+import { useDashboardSummary, useAlerts } from '../hooks/useApi';
 
 interface ApplicationData {
   cloudAccount: string;
@@ -51,6 +52,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProvider, setSelectedProvider] = useState('AWS');
   const [selectedQuarter, setSelectedQuarter] = useState('2025, Q1');
+
+  // API hooks
+  const { data: dashboardData, loading: dashboardLoading } = useDashboardSummary(selectedQuarter);
+  const { data: alertsData } = useAlerts({ limit: 5 });
+  const alerts = alertsData || [];
   const [hoveredAccount, setHoveredAccount] = useState<number | null>(null);
   const [showAttentionView, setShowAttentionView] = useState(false);
   const [selectedCloudAccount, setSelectedCloudAccount] = useState<number | null>(null);
@@ -551,54 +557,60 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-8 gap-4 mb-8">
-          {/* Total Cloud Accounts */}
-          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="text-sm font-medium text-slate-400 mb-2">Total Cloud Accounts</div>
-            <div className="text-2xl font-bold text-white mb-1">30</div>
-            <div className="text-xs text-slate-400">Efficiency 60%</div>
-          </div>
+          {dashboardLoading ? (
+            <div className="col-span-8 text-center text-slate-400">Loading dashboard data...</div>
+          ) : (
+            <>
+              {/* Total Cloud Accounts */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Total Cloud Accounts</div>
+                <div className="text-2xl font-bold text-white mb-1">{dashboardData?.totalCloudAccounts || 0}</div>
+                <div className="text-xs text-slate-400">Efficiency {dashboardData?.efficiency || 0}%</div>
+              </div>
 
-          {/* Virtual Machines */}
-          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="text-sm font-medium text-slate-400 mb-2">Virtual Machines</div>
-            <div className="text-2xl font-bold text-white">30,000</div>
-          </div>
+              {/* Virtual Machines */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Virtual Machines</div>
+                <div className="text-2xl font-bold text-white">{dashboardData?.totalVirtualMachines?.toLocaleString() || 0}</div>
+              </div>
 
-          {/* Application Instances */}
-          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="text-sm font-medium text-slate-400 mb-2">Application Instances</div>
-            <div className="text-2xl font-bold text-white">1,200</div>
-          </div>
+              {/* Application Instances */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Application Instances</div>
+                <div className="text-2xl font-bold text-white">{dashboardData?.totalApplicationInstances?.toLocaleString() || 0}</div>
+              </div>
 
-          {/* Databases */}
-          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="text-sm font-medium text-slate-400 mb-2">Databases</div>
-            <div className="text-2xl font-bold text-white">3,000</div>
-          </div>
+              {/* Databases */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Databases</div>
+                <div className="text-2xl font-bold text-white">{dashboardData?.totalDatabases?.toLocaleString() || 0}</div>
+              </div>
 
-          {/* Storage (GiB) */}
-          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="text-sm font-medium text-slate-400 mb-2">Storage (GiB)</div>
-            <div className="text-2xl font-bold text-white">300</div>
-          </div>
+              {/* Storage (GiB) */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Storage (GiB)</div>
+                <div className="text-2xl font-bold text-white">{dashboardData?.totalStorage || 0}</div>
+              </div>
 
-          {/* Monthly Spend */}
-          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="text-sm font-medium text-slate-400 mb-2">Monthly Spend</div>
-            <div className="text-2xl font-bold text-white">$100K</div>
-          </div>
+              {/* Monthly Spend */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Monthly Spend</div>
+                <div className="text-2xl font-bold text-white">${(dashboardData?.monthlySpend / 1000 || 0)}K</div>
+              </div>
 
-          {/* Monthly Savings */}
-          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="text-sm font-medium text-slate-400 mb-2">Monthly Savings</div>
-            <div className="text-2xl font-bold text-white">$10K</div>
-          </div>
+              {/* Monthly Savings */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Monthly Savings</div>
+                <div className="text-2xl font-bold text-white">${(dashboardData?.monthlySavings / 1000 || 0)}K</div>
+              </div>
 
-          {/* Potential Savings */}
-          <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="text-sm font-medium text-slate-400 mb-2">Potential Savings</div>
-            <div className="text-2xl font-bold text-white">$40K</div>
-          </div>
+              {/* Potential Savings */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Potential Savings</div>
+                <div className="text-2xl font-bold text-white">${(dashboardData?.potentialSavings / 1000 || 0)}K</div>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-6">

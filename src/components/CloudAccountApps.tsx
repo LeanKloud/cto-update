@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { Search, ChevronDown, Filter } from 'lucide-react';
 import { ApplicationData } from '../types';
+import { useApplications } from '../hooks/useApi';
 
 interface CloudAccountAppsProps {
   selectedAccount: string;
-  applicationData: ApplicationData[];
   onBack: () => void;
   onApplicationClick: (applicationName: string) => void;
 }
 
 const CloudAccountApps: React.FC<CloudAccountAppsProps> = ({
   selectedAccount,
-  applicationData,
   onBack,
   onApplicationClick
 }) => {
@@ -21,6 +20,12 @@ const CloudAccountApps: React.FC<CloudAccountAppsProps> = ({
   const [appsSelectedPeriod, setAppsSelectedPeriod] = useState('2025, Q1');
   const [appsSortBy, setAppsSortBy] = useState('Sort by');
   const [appsSortOrder, setAppsSortOrder] = useState('Descending');
+
+  // Fetch applications data
+  const { data: applicationsData, loading } = useApplications({
+    cloudAccount: selectedAccount
+  });
+  const applicationData = applicationsData?.applications || [];
 
   const handleReset = () => {
     setAppsSearchTerm('');
@@ -195,7 +200,10 @@ const CloudAccountApps: React.FC<CloudAccountAppsProps> = ({
 
       {/* Applications Table */}
       <div className="p-6">
-        <div className="rounded-lg shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+        {loading ? (
+          <div className="text-center text-slate-400 py-8">Loading applications...</div>
+        ) : (
+          <div className="rounded-lg shadow-sm overflow-hidden" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
           <table className="w-full">
             <thead style={{ backgroundColor: '#334155' }}>
               <tr>
@@ -237,6 +245,7 @@ const CloudAccountApps: React.FC<CloudAccountAppsProps> = ({
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

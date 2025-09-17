@@ -6,7 +6,7 @@ import CloudAccountSummary from './components/CloudAccountSummary';
 import CloudAccountDetail from './components/CloudAccountDetail';
 import CloudAccountApps from './components/CloudAccountApps';
 import { ViewType } from './types';
-import { cloudAccountSummaryData, applicationData } from './data/mockData';
+import { useDashboardSummary, useCloudAccounts } from './hooks/useApi';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -14,6 +14,11 @@ const App: React.FC = () => {
   const [selectedCloudAccount, setSelectedCloudAccount] = useState('');
   const [selectedAccountForApps, setSelectedAccountForApps] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState('');
+
+  // API hooks
+  const { data: cloudAccountsData } = useCloudAccounts();
+  const cloudAccountSummaryData = cloudAccountsData?.accounts || [];
+  const applicationData = []; // Will be fetched per account
 
   // Listen for requests from child components to open cloud account detail
   useEffect(() => {
@@ -110,7 +115,6 @@ const App: React.FC = () => {
         <Sidebar currentView={currentView} onNavigate={handleNavigation} />
         <CloudAccountApps
           selectedAccount={selectedAccountForApps}
-          applicationData={applicationData}
           onBack={() => setCurrentView('applications')}
           onApplicationClick={handleApplicationClick}
         />
