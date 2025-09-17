@@ -856,45 +856,47 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
         <div className="grid grid-cols-3 gap-6 mt-6">
           {/* Left: Instance breakdown donut */}
           <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <h3 className="text-lg font-semibold text-white mb-4">Instance breakdown</h3>
-            <div className="flex items-center">
-              {/* Donut */}
-              <div className="relative" style={{ width: 220, height: 220 }}>
-                <div
-                  className="rounded-full"
-                  style={{
-                    width: '220px',
-                    height: '220px',
-                    background: 'conic-gradient(#00BCD4 0 70%, #4CAF50 70% 100%)'
-                  }}
-                ></div>
-                {/* Inner hole */}
+            <h3 className="text-lg font-semibold text-white mb-6">Instance breakdown</h3>
+            <div className="flex items-center justify-center">
+              {/* Donut Chart */}
+              <div className="relative" style={{ width: 180, height: 180 }}>
+                <svg width="180" height="180" className="transform -rotate-90">
+                  {/* On Spot - 70% */}
+                  <circle
+                    cx="90"
+                    cy="90"
+                    r="70"
+                    fill="none"
+                    stroke="#00BCD4"
+                    strokeWidth="28"
+                    strokeDasharray={`${70 * 4.4} ${30 * 4.4}`}
+                    strokeDashoffset="0"
+                  />
+                  {/* On Demand - 30% */}
+                  <circle
+                    cx="90"
+                    cy="90"
+                    r="70"
+                    fill="none"
+                    stroke="#4CAF50"
+                    strokeWidth="28"
+                    strokeDasharray={`${30 * 4.4} ${70 * 4.4}`}
+                    strokeDashoffset={`-${70 * 4.4}`}
+                  />
+                </svg>
+                {/* Center text */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="rounded-full" style={{ width: 140, height: 140, backgroundColor: '#1e293b' }}></div>
-                  <div className="absolute text-sm font-semibold text-white">70%</div>
-                </div>
-
-                {/* Tooltip callout for On Demand */}
-                <div className="absolute -right-6 top-16">
-                  <div className="relative rounded-lg shadow px-4 py-3 text-sm text-white" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                    <div className="font-semibold text-white mb-1">On Demand</div>
-                    <div>Usage - 30%</div>
-                    <div>Prod - 25%</div>
-                    <div>Non Prod - 5%</div>
-                    {/* Arrow */}
-                    <div className="absolute -left-2 top-6 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent" style={{ borderRightColor: '#334155' }}></div>
-                    <div className="absolute -left-[7px] top-[26px] w-0 h-0 border-t-7 border-b-7 border-r-7 border-t-transparent border-b-transparent" style={{ borderRightColor: '#1e293b' }}></div>
-                  </div>
+                  <span className="text-2xl font-bold text-white">70%</span>
                 </div>
               </div>
 
               {/* Legend */}
               <div className="ml-8 space-y-3">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CAF50' }}></div>
                   <span className="text-slate-400 text-sm">On Demand</span>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#00BCD4' }}></div>
                   <span className="text-slate-400 text-sm">On Spot</span>
                 </div>
@@ -1011,12 +1013,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           </div>
         </div>
 
-        {/* Savings on Application modal */}
+        {/* Spot Utilization modal */}
         {showSpotDetails && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl w-[1100px] mt-16 border-2 border-blue-300">
-              <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Savings on Application</h3>
+            <div className="rounded-lg shadow-xl w-[1100px] mt-16" style={{ backgroundColor: '#1e293b', border: '2px solid #3b82f6' }}>
+              <div className="flex items-center justify-between p-4" style={{ borderBottom: '1px solid #334155' }}>
+                <h3 className="text-lg font-semibold text-white">Spot Utilization Savings</h3>
                 <div className="flex items-center space-x-2">
                   <div className="relative">
                     <button
@@ -1027,7 +1029,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       <Filter className="h-5 w-5 text-gray-600" />
                     </button>
                     {showSavingsSortDropdown && (
-                      <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                      <div className="absolute right-0 top-full mt-2 w-80 rounded-lg shadow-lg z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                         {[
                           'On Demand cost (Highest to Lowest)',
                           'On Demand cost (Lowest to Highest)',
@@ -1041,7 +1043,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                           <button
                             key={option}
                             onClick={() => { setSavingsSortBy(option); setShowSavingsSortDropdown(false); }}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg"
+                            className="w-full text-left px-4 py-2 text-sm text-white hover:opacity-80 first:rounded-t-lg last:rounded-b-lg"
                           >
                             {option}
                           </button>
@@ -1049,8 +1051,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       </div>
                     )}
                   </div>
-                  <button onClick={() => setShowSpotDetails(false)} className="p-2 hover:bg-gray-100 rounded">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  <button onClick={() => setShowSpotDetails(false)} className="p-2 hover:opacity-80 rounded">
+                    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
                 </div>
               </div>
@@ -1058,7 +1060,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               <div className="overflow-x-auto">
                 <table className="min-w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 text-gray-900">
+                    <tr style={{ borderBottom: '1px solid #334155' }} className="text-white">
                       <th className="text-left py-3 px-6 font-medium">Cloud Account</th>
                       <th className="text-left py-3 px-6 font-medium">Application name</th>
                       <th className="text-left py-3 px-6 font-medium">
@@ -1116,14 +1118,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       return filteredRows.slice(0, data.length).map((_, idx) => {
                         const row = data[idx];
                         return (
-                          <tr key={idx} className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                            <td className="py-4 px-6 text-gray-900">{row.cloudAccount}</td>
-                            <td className="py-4 px-6 text-gray-900">{row.applicationName}</td>
-                            <td className="py-4 px-6 text-gray-900">${row.onDemand}</td>
-                            <td className="py-4 px-6 text-gray-900">${row.withSpot}</td>
-                            <td className="py-4 px-6 text-gray-900">${row.withoutSpot}</td>
-                            <td className="py-4 px-6 text-gray-900">{row.percent}%</td>
-                            <td className="py-4 px-4 text-gray-400"><ChevronRight className="h-4 w-4" /></td>
+                          <tr key={idx} style={{ borderBottom: '1px solid #334155' }} className={idx % 2 === 0 ? '' : 'bg-slate-800/50'}>
+                            <td className="py-4 px-6 text-white">{row.cloudAccount}</td>
+                            <td className="py-4 px-6 text-white">{row.applicationName}</td>
+                            <td className="py-4 px-6 text-white">${row.onDemand}</td>
+                            <td className="py-4 px-6 text-white">${row.withSpot}</td>
+                            <td className="py-4 px-6 text-white">${row.withoutSpot}</td>
+                            <td className="py-4 px-6 text-white">{row.percent}%</td>
+                            <td className="py-4 px-4 text-slate-400"><ChevronRight className="h-4 w-4" /></td>
                           </tr>
                         );
                       });
