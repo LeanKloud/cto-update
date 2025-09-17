@@ -6,12 +6,14 @@ import ComputeModal from './ComputeModal';
 
 interface CloudAccountDetailProps {
   cloudAccount: string;
+  applicationName?: string;
   onBack: () => void;
   onComputeClick: (computeId: string) => void;
 }
 
 const CloudAccountDetail: React.FC<CloudAccountDetailProps> = ({
   cloudAccount,
+  applicationName,
   onBack,
   onComputeClick
 }) => {
@@ -25,6 +27,43 @@ const CloudAccountDetail: React.FC<CloudAccountDetailProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [showComputeModal, setShowComputeModal] = useState(false);
   const [selectedComputeId, setSelectedComputeId] = useState('');
+
+  // Handle search navigation
+  React.useEffect(() => {
+    if (searchTerm.trim()) {
+      const term = searchTerm.trim().toLowerCase();
+      
+      // Check for exact cloud account search
+      if (term === 'cloud account 1') {
+        setSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 1' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      if (term === 'cloud account 2') {
+        setSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 2' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      
+      // Check for exact application search
+      if (term === 'temp_core_01') {
+        setSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountDetail', { detail: { cloudAccount: 'Cloud Account 1', applicationName: 'temp_core_01' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      
+      // Check for exact compute ID search
+      if (term === 'vol-0707df985c67e6411') {
+        setSearchTerm('');
+        setSelectedComputeId('vol-0707df985c67e6411');
+        setShowComputeModal(true);
+        return;
+      }
+    }
+  }, [searchTerm]);
 
   // Mock data for different resource types
   const computeResources: ComputeResource[] = [
@@ -118,7 +157,7 @@ const CloudAccountDetail: React.FC<CloudAccountDetailProps> = ({
               ← Back
             </button>
             <h1 className="text-2xl font-semibold text-white">
-              {cloudAccount} - Details
+              {cloudAccount} {applicationName ? `${applicationName} Assets` : '- Details'}
             </h1>
           </div>
         </div>

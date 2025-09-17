@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [selectedCloudAccount, setSelectedCloudAccount] = useState('');
   const [selectedAccountForApps, setSelectedAccountForApps] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState('');
+  const [selectedApplicationName, setSelectedApplicationName] = useState('');
 
   // API hooks
   const { data: cloudAccountsData } = useCloudAccounts();
@@ -26,6 +27,7 @@ const App: React.FC = () => {
       const detail = (e as CustomEvent).detail as { cloudAccount?: string };
       const cloudAccount = detail?.cloudAccount || 'Cloud Account 1';
       setSelectedCloudAccount(cloudAccount);
+      setSelectedApplicationName('');
       setShowCloudAccountDetail(true);
       setCurrentView('applications');
     };
@@ -42,6 +44,33 @@ const App: React.FC = () => {
     return () => window.removeEventListener('navigateToApplications', handler as EventListener);
   }, []);
 
+  // Listen for requests to navigate to cloud account apps
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { cloudAccount?: string };
+      const cloudAccount = detail?.cloudAccount || 'Cloud Account 1';
+      setSelectedAccountForApps(cloudAccount);
+      setCurrentView('cloudAccountApps');
+    };
+    window.addEventListener('navigateToCloudAccountApps', handler as EventListener);
+    return () => window.removeEventListener('navigateToCloudAccountApps', handler as EventListener);
+  }, []);
+
+  // Listen for requests to navigate to cloud account detail
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { cloudAccount?: string; applicationName?: string };
+      const cloudAccount = detail?.cloudAccount || 'Cloud Account 1';
+      const applicationName = detail?.applicationName || '';
+      setSelectedCloudAccount(cloudAccount);
+      setSelectedApplicationName(applicationName);
+      setShowCloudAccountDetail(true);
+      setCurrentView('applications');
+    };
+    window.addEventListener('navigateToCloudAccountDetail', handler as EventListener);
+    return () => window.removeEventListener('navigateToCloudAccountDetail', handler as EventListener);
+  }, []);
+
   const handleNavigation = (view: 'dashboard' | 'applications') => {
     setCurrentView(view);
     setShowCloudAccountDetail(false);
@@ -54,12 +83,14 @@ const App: React.FC = () => {
 
   const handleCloudAccountClick = (cloudAccount: string) => {
     setSelectedCloudAccount(cloudAccount);
+    setSelectedApplicationName('');
     setShowCloudAccountDetail(true);
     setCurrentView('applications');
   };
 
   const handleApplicationClick = (applicationName: string) => {
     setSelectedCloudAccount(selectedAccountForApps);
+    setSelectedApplicationName(applicationName);
     setShowCloudAccountDetail(true);
     setCurrentView('applications');
   };
@@ -67,6 +98,7 @@ const App: React.FC = () => {
   const handleBackToApplications = () => {
     setShowCloudAccountDetail(false);
     setSelectedCloudAccount('');
+    setSelectedApplicationName('');
     setCurrentView('cloudAccountApps');
   };
 
@@ -100,6 +132,7 @@ const App: React.FC = () => {
         <div className="flex-1 overflow-hidden">
           <CloudAccountDetail
             cloudAccount={selectedCloudAccount}
+            applicationName={selectedApplicationName}
             onBack={handleBackToApplications}
             onComputeClick={handleComputeIdClick}
           />

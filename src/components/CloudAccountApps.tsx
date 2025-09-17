@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, ChevronDown, Filter } from 'lucide-react';
 import { ApplicationData } from '../types';
 import { useApplications } from '../hooks/useApi';
+import ComputeModal from './ComputeModal';
 
 interface CloudAccountAppsProps {
   selectedAccount: string;
@@ -20,6 +21,47 @@ const CloudAccountApps: React.FC<CloudAccountAppsProps> = ({
   const [appsSelectedPeriod, setAppsSelectedPeriod] = useState('2025, Q1');
   const [appsSortBy, setAppsSortBy] = useState('Sort by');
   const [appsSortOrder, setAppsSortOrder] = useState('Descending');
+  const [selectedComputeId, setSelectedComputeId] = useState('');
+  const [showComputeModal, setShowComputeModal] = useState(false);
+
+  // Handle search navigation
+  React.useEffect(() => {
+    if (appsSearchTerm.trim()) {
+      const term = appsSearchTerm.trim().toLowerCase();
+      
+      // Check for exact cloud account search
+      if (term === 'cloud account 1') {
+        setAppsSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 1' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      if (term === 'cloud account 2') {
+        setAppsSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 2' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      
+      // Check for exact application search
+      if (term === 'temp_core_01') {
+        setAppsSearchTerm('');
+        setTimeout(() => {
+          const event = new CustomEvent('navigateToCloudAccountDetail', { detail: { cloudAccount: 'Cloud Account 1', applicationName: 'Temp_Core_01' } });
+          window.dispatchEvent(event);
+        }, 100);
+        return;
+      }
+      
+      // Check for exact compute ID search
+      if (term === 'vol-0707df985c67e6411') {
+        setAppsSearchTerm('');
+        setSelectedComputeId('vol-0707df985c67e6411');
+        setShowComputeModal(true);
+        return;
+      }
+    }
+  }, [appsSearchTerm]);
 
   // Fetch applications data
   const { data: applicationsData, loading } = useApplications({
@@ -247,6 +289,13 @@ const CloudAccountApps: React.FC<CloudAccountAppsProps> = ({
         </div>
         )}
       </div>
+
+      {/* Compute Modal */}
+      <ComputeModal
+        isOpen={showComputeModal}
+        onClose={() => setShowComputeModal(false)}
+        computeId={selectedComputeId}
+      />
     </div>
   );
 };

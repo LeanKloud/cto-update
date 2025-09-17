@@ -12,6 +12,7 @@ import {
   Download
 } from 'lucide-react';
 import { useDashboardSummary, useAlerts } from '../hooks/useApi';
+import ComputeModal from './ComputeModal';
 
 interface ApplicationData {
   cloudAccount: string;
@@ -79,6 +80,45 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
   const [attentionFilter, setAttentionFilter] = useState('All');
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const [showAllAlerts, setShowAllAlerts] = useState(false);
+  const [selectedComputeId, setSelectedComputeId] = useState('');
+  const [showComputeModal, setShowComputeModal] = useState(false);
+
+  // Handle search navigation
+  React.useEffect(() => {
+    if (searchTerm.trim()) {
+      const term = searchTerm.trim().toLowerCase();
+      
+      // Check for exact cloud account search
+      if (term === 'cloud account 1') {
+        setSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 1' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      if (term === 'cloud account 2') {
+        setSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 2' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      
+      // Check for exact application search
+      if (term === 'temp_core_01') {
+        setSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountDetail', { detail: { cloudAccount: 'Cloud Account 1', applicationName: 'temp_core_01' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      
+      // Check for exact compute ID search
+      if (term === 'vol-0707df985c67e6411') {
+        setSearchTerm('');
+        setSelectedComputeId('vol-0707df985c67e6411');
+        setShowComputeModal(true);
+        return;
+      }
+    }
+  }, [searchTerm, onViewAccountDetails]);
   const getAttentionFilterOptions = () => {
     if (activeTab === 'Usage & Cost') {
       return ['All', 'Cloud Account 1', 'Cloud Account 2', 'Cloud Account 3'];
@@ -633,88 +673,88 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                 <div className="flex-shrink-0">
                   <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-medium text-red-800">High Spend Alert</h4>
-                  <p className="text-sm text-red-700 mt-1">
+                  <h4 className="text-sm font-medium text-red-300">High Spend Alert</h4>
+                  <p className="text-sm text-red-200 mt-1">
                     Cloud Account 1 has the highest spend of $2.4M this quarter
                   </p>
                   <button 
                     onClick={onViewApplications}
-                    className="text-xs text-red-600 hover:text-red-800 underline mt-1 block"
+                    className="text-xs text-red-400 hover:text-red-300 underline mt-1 block"
                   >
                     View applications →
                   </button>
-                  <p className="text-xs text-red-600 mt-1">1 hour ago</p>
+                  <p className="text-xs text-slate-400 mt-1">1 hour ago</p>
                 </div>
               </div>
               
-              <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                 <div className="flex-shrink-0">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-medium text-blue-800">New Asset Created</h4>
-                  <p className="text-sm text-blue-700 mt-1">
+                  <h4 className="text-sm font-medium text-blue-300">New Asset Created</h4>
+                  <p className="text-sm text-blue-200 mt-1">
                     New EC2 instance (i-0a1b2c3d4e5f6789) created in Cloud Account 2
                   </p>
                   <button 
                     onClick={() => setSelectedAccount('ca-456')}
-                    className="text-xs text-blue-600 hover:text-blue-800 underline mt-1 block"
+                    className="text-xs text-blue-400 hover:text-blue-300 underline mt-1 block"
                   >
                     View applications →
                   </button>
-                  <p className="text-xs text-blue-600 mt-1">30 minutes ago</p>
+                  <p className="text-xs text-slate-400 mt-1">30 minutes ago</p>
                 </div>
               </div>
               
               {showAllAlerts && (
                 <>
-                  <div className="flex items-start space-x-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                     <div className="flex-shrink-0">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-medium text-orange-800">Resource Imbalance</h4>
-                      <p className="text-sm text-orange-700 mt-1">
+                      <h4 className="text-sm font-medium text-orange-300">Resource Imbalance</h4>
+                      <p className="text-sm text-orange-200 mt-1">
                         Cloud Account 1 has 3x more resources than other accounts
                       </p>
                       <button 
                         onClick={() => setSelectedAccount('ca-123')}
-                        className="text-xs text-orange-600 hover:text-orange-800 underline mt-1 block"
+                        className="text-xs text-orange-400 hover:text-orange-300 underline mt-1 block"
                       >
                         View applications →
                       </button>
-                      <p className="text-xs text-orange-600 mt-1">2 hours ago</p>
+                      <p className="text-xs text-slate-400 mt-1">2 hours ago</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                     <div className="flex-shrink-0">
                       <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-medium text-red-800">Compute Outage</h4>
-                      <p className="text-sm text-red-700 mt-1">
+                      <h4 className="text-sm font-medium text-red-300">Compute Outage</h4>
+                      <p className="text-sm text-red-200 mt-1">
                         EC2 instance i-de0b6b3a7640000 in us-east-1 is unresponsive
                       </p>
-                      <p className="text-xs text-red-600 mt-1">15 minutes ago</p>
+                      <p className="text-xs text-slate-400 mt-1">15 minutes ago</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                     <div className="flex-shrink-0">
                       <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-medium text-red-800">Disk Outage</h4>
-                      <p className="text-sm text-red-700 mt-1">
+                      <h4 className="text-sm font-medium text-red-300">Disk Outage</h4>
+                      <p className="text-sm text-red-200 mt-1">
                         EBS volume vol-6124fee993bc0000 experiencing I/O errors
                       </p>
-                      <p className="text-xs text-red-600 mt-1">5 minutes ago</p>
+                      <p className="text-xs text-slate-400 mt-1">5 minutes ago</p>
                     </div>
                   </div>
                 </>
@@ -723,7 +763,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           </div>
         </div>
 
-        {/* Spends & Savings Chart - Full Width Below Alerts */}
+        {/* Spends & Savings Chart - Only show when no search term */}
+        {!searchTerm.trim() && (
         <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-white">Spends & Savings</h3>
@@ -755,7 +796,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           {/* Chart Container */}
           <div className="relative">
             <div className="flex items-end justify-between h-64 mb-4 px-4">
-              {filteredChartData.map((data) => {
+              {filteredChartData.map((data, index) => {
                 const chartHeight = 200; // px - keep columns within chart area
                 // Scale each stacked segment against the maximum TOTAL so stacks never exceed chartHeight
                 const spendingHeight = (data.spendings / maxValue) * chartHeight;
@@ -767,6 +808,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                   <div
                     key={data.account}
                     className="relative flex items-end space-x-2 group cursor-pointer"
+                    style={{ width: `${100 / filteredChartData.length}%`, justifyContent: 'center' }}
                     onMouseEnter={() => setHoveredAccount(data.account)}
                     onMouseLeave={() => setHoveredAccount(null)}
                     onClick={() => handleChartBarClick(data.account)}
@@ -782,39 +824,42 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       </div>
                     )}
 
-                    {/* Main Stacked Bar */}
-                    <div className="relative flex flex-col items-center">
-                      <div className="w-8 relative" style={{ height: `${200}px` }}>
-                        {/* Spendings (Bottom - Red) */}
+                    {/* Chart Bars Container */}
+                    <div className="flex items-end space-x-2 justify-center">
+                      {/* Main Stacked Bar */}
+                      <div className="relative flex flex-col items-center">
+                        <div className="w-8 relative" style={{ height: `${200}px` }}>
+                          {/* Spendings (Bottom - Red) */}
+                          <div
+                            className="absolute bottom-0 w-full bg-red-300 transition-all duration-200"
+                            style={{ height: `${Math.max(spendingHeight, 8)}px` }}
+                          ></div>
+                          {/* Savings (Middle - Blue) */}
+                          <div
+                            className="absolute w-full bg-blue-300 transition-all duration-200"
+                            style={{ 
+                              height: `${Math.max(savingsHeight, 8)}px`,
+                              bottom: `${Math.max(spendingHeight, 8)}px`
+                            }}
+                          ></div>
+                          {/* Potential Savings (Top - Green) */}
+                          <div
+                            className="absolute w-full bg-green-400 transition-all duration-200"
+                            style={{ 
+                              height: `${Math.max(potentialHeight, 8)}px`,
+                              bottom: `${Math.max(spendingHeight + savingsHeight, 16)}px`
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      {/* Efficiency Bar (Right - Grey) */}
+                      <div className="relative flex flex-col items-center">
                         <div
-                          className="absolute bottom-0 w-full bg-red-300 transition-all duration-200"
-                          style={{ height: `${Math.max(spendingHeight, 8)}px` }}
-                        ></div>
-                        {/* Savings (Middle - Blue) */}
-                        <div
-                          className="absolute w-full bg-blue-300 transition-all duration-200"
-                          style={{ 
-                            height: `${Math.max(savingsHeight, 8)}px`,
-                            bottom: `${Math.max(spendingHeight, 8)}px`
-                          }}
-                        ></div>
-                        {/* Potential Savings (Top - Green) */}
-                        <div
-                          className="absolute w-full bg-green-400 transition-all duration-200"
-                          style={{ 
-                            height: `${Math.max(potentialHeight, 8)}px`,
-                            bottom: `${Math.max(spendingHeight + savingsHeight, 16)}px`
-                          }}
+                          className="w-6 bg-gray-400 transition-all duration-200"
+                          style={{ height: `${Math.max(efficiencyHeight, 8)}px` }}
                         ></div>
                       </div>
-                    </div>
-
-                    {/* Efficiency Bar (Right - Grey) */}
-                    <div className="relative flex flex-col items-center">
-                      <div
-                        className="w-6 bg-gray-400 transition-all duration-200"
-                        style={{ height: `${Math.max(efficiencyHeight, 8)}px` }}
-                      ></div>
                     </div>
                   </div>
                 );
@@ -823,8 +868,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
 
             {/* X-axis Labels */}
             <div className="flex justify-between px-4 mb-4">
-              {filteredChartData.map((data) => (
-                <div key={data.account} className="text-xs text-slate-400 text-center flex-1">
+              {filteredChartData.map((data, index) => (
+                <div key={data.account} className="text-xs text-slate-400 text-center" style={{ width: `${100 / filteredChartData.length}%` }}>
                   Cloud<br />Account {data.account}
                 </div>
               ))}
@@ -851,8 +896,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             </div>
           </div>
         </div>
+        )}
 
-        {/* Two-column section replicating reference (Instance breakdown + On Spot savings) */}
+        {/* Two-column section replicating reference (Instance breakdown + On Spot savings) - Only show when no search term */}
+        {!searchTerm.trim() && (
         <div className="grid grid-cols-3 gap-6 mt-6">
           {/* Left: Instance breakdown donut */}
           <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
@@ -1012,6 +1059,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             </div>
           </div>
         </div>
+        )}
 
         {/* Spot Utilization modal */}
         {showSpotDetails && (
@@ -1137,7 +1185,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           </div>
         )}
 
-        {/* Compare cost across Quarters */}
+        {/* Compare cost across Quarters - Only show when no search term */}
+        {!searchTerm.trim() && (
         <div className="rounded-lg shadow-sm p-6 mt-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white">Compare cost across Quarters</h3>
@@ -1289,6 +1338,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             </div>
           </div>
         </div>
+        )}
+
+        {/* Compute Modal */}
+        <ComputeModal
+          isOpen={showComputeModal}
+          onClose={() => setShowComputeModal(false)}
+          computeId={selectedComputeId}
+        />
       </div>
     </div>
   );

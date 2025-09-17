@@ -3,7 +3,7 @@
 Base URL: `http://localhost:3001/api`
 Authentication: Bearer token in Authorization header
 
-## APIs (13 total)
+## APIs (15 total)
 
 ### 1. GET /dashboard/summary
 ```json
@@ -252,6 +252,43 @@ Authentication: Bearer token in Authorization header
       "percentageSavings": 50
     }
   ]
+}
+```
+
+### 14. GET /cloud-accounts/:accountId
+```json
+{
+  "success": true,
+  "data": {
+    "id": "ca-001",
+    "cloudAccount": "Cloud Account 1",
+    "applications": 45,
+    "vms": 120,
+    "storage": 8,
+    "totalSpends": "$2.4M",
+    "totalSavings": "$180K",
+    "potentialSavings": "$320K",
+    "efficiency": "85%",
+    "provider": "AWS",
+    "department": "Engineering"
+  }
+}
+```
+
+### 15. GET /applications/:applicationId
+```json
+{
+  "success": true,
+  "data": {
+    "id": "app-001-001",
+    "cloudAccount": "Cloud Account 1",
+    "applicationName": "Temp_Core_01",
+    "spends": "$700k",
+    "potentialSavings": "$700k",
+    "efficiency": "90%",
+    "department": "Engineering",
+    "provider": "AWS"
+  }
 }
 ```
 
