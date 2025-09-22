@@ -11,6 +11,8 @@ import {
   ArrowUpDown,
   Download
 } from 'lucide-react';
+import { useDashboardSummary, useAlerts } from '../hooks/useApi';
+import ComputeModal from './ComputeModal';
 
 interface ApplicationData {
   cloudAccount: string;
@@ -51,6 +53,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProvider, setSelectedProvider] = useState('AWS');
   const [selectedQuarter, setSelectedQuarter] = useState('2025, Q1');
+
+  // API hooks
+  const { data: dashboardData, loading: dashboardLoading } = useDashboardSummary(selectedQuarter);
+  const { data: alertsData } = useAlerts({ limit: 5 });
+  const alerts = alertsData || [];
   const [hoveredAccount, setHoveredAccount] = useState<number | null>(null);
   const [showAttentionView, setShowAttentionView] = useState(false);
   const [selectedCloudAccount, setSelectedCloudAccount] = useState<number | null>(null);
@@ -73,6 +80,45 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
   const [attentionFilter, setAttentionFilter] = useState('All');
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const [showAllAlerts, setShowAllAlerts] = useState(false);
+  const [selectedComputeId, setSelectedComputeId] = useState('');
+  const [showComputeModal, setShowComputeModal] = useState(false);
+
+  // Handle search navigation
+  React.useEffect(() => {
+    if (searchTerm.trim()) {
+      const term = searchTerm.trim().toLowerCase();
+      
+      // Check for exact cloud account search
+      if (term === 'cloud account 1') {
+        setSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 1' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      if (term === 'cloud account 2') {
+        setSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 2' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      
+      // Check for exact application search
+      if (term === 'temp_core_01') {
+        setSearchTerm('');
+        const event = new CustomEvent('navigateToCloudAccountDetail', { detail: { cloudAccount: 'Cloud Account 1', applicationName: 'temp_core_01' } });
+        window.dispatchEvent(event);
+        return;
+      }
+      
+      // Check for exact compute ID search
+      if (term === 'vol-0707df985c67e6411') {
+        setSearchTerm('');
+        setSelectedComputeId('vol-0707df985c67e6411');
+        setShowComputeModal(true);
+        return;
+      }
+    }
+  }, [searchTerm, onViewAccountDetails]);
   const getAttentionFilterOptions = () => {
     if (activeTab === 'Usage & Cost') {
       return ['All', 'Cloud Account 1', 'Cloud Account 2', 'Cloud Account 3'];
@@ -491,9 +537,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen" style={{ backgroundColor: '#0f172a' }}>
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="px-6 py-4" style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* Left side - could add breadcrumb or title */}
           <div></div>
@@ -501,13 +547,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           {/* Center - Search Bar */}
           <div className="flex-1 max-w-md mx-8">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search by Cloud account or Application..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 rounded-lg text-white placeholder-slate-400"
+                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
               />
             </div>
           </div>
@@ -518,27 +565,29 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               <select
                 value={selectedProvider}
                 onChange={(e) => setSelectedProvider(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
+                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
               >
                 <option value="All Providers">All Providers</option>
                 <option value="AWS">AWS</option>
                 <option value="Azure">Azure</option>
                 <option value="GCP">GCP</option>
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             </div>
 
             <div className="relative">
               <select
                 value={selectedQuarter}
                 onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
+                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
               >
                 <option value="2025, Q1">2025, Q1</option>
                 <option value="2024, Q4">2024, Q4</option>
                 <option value="2024, Q3">2024, Q3</option>
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -547,70 +596,76 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Key Metrics Cards */}
-        <div className="grid grid-cols-8 gap-6 mb-8">
-          {/* Total Cloud Accounts */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Total Cloud Accounts</div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">30</div>
-            <div className="text-sm text-gray-600">Efficiency 60%</div>
-          </div>
+        <div className="grid grid-cols-8 gap-4 mb-8">
+          {dashboardLoading ? (
+            <div className="col-span-8 text-center text-slate-400">Loading dashboard data...</div>
+          ) : (
+            <>
+              {/* Total Cloud Accounts */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Total Cloud Accounts</div>
+                <div className="text-2xl font-bold text-white mb-1">{dashboardData?.totalCloudAccounts || 0}</div>
+                <div className="text-xs text-slate-400">Efficiency {dashboardData?.efficiency || 0}%</div>
+              </div>
 
-          {/* VMs */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">VMs</div>
-            <div className="text-3xl font-bold text-gray-900">30000</div>
-          </div>
+              {/* Virtual Machines */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Virtual Machines</div>
+                <div className="text-2xl font-bold text-white">{dashboardData?.totalVirtualMachines?.toLocaleString() || 0}</div>
+              </div>
 
-          {/* App Instance */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">App Instance</div>
-            <div className="text-3xl font-bold text-gray-900">1200</div>
-          </div>
+              {/* Application Instances */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Application Instances</div>
+                <div className="text-2xl font-bold text-white">{dashboardData?.totalApplicationInstances?.toLocaleString() || 0}</div>
+              </div>
 
-          {/* DBs */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">DBs</div>
-            <div className="text-3xl font-bold text-gray-900">3000</div>
-          </div>
+              {/* Databases */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Databases</div>
+                <div className="text-2xl font-bold text-white">{dashboardData?.totalDatabases?.toLocaleString() || 0}</div>
+              </div>
 
-          {/* Storage */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Storage</div>
-            <div className="text-3xl font-bold text-gray-900">300</div>
-          </div>
+              {/* Storage (GiB) */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Storage (GiB)</div>
+                <div className="text-2xl font-bold text-white">{dashboardData?.totalStorage || 0}</div>
+              </div>
 
-          {/* Current Spends */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Current spends</div>
-            <div className="text-3xl font-bold text-gray-900">$100</div>
-          </div>
+              {/* Monthly Spend */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Monthly Spend</div>
+                <div className="text-2xl font-bold text-white">${(dashboardData?.monthlySpend / 1000 || 0)}K</div>
+              </div>
 
-          {/* Current Savings */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Current savings</div>
-            <div className="text-3xl font-bold text-gray-900">$10</div>
-          </div>
+              {/* Monthly Savings */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Monthly Savings</div>
+                <div className="text-2xl font-bold text-white">${(dashboardData?.monthlySavings / 1000 || 0)}K</div>
+              </div>
 
-          {/* Potential Savings */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-sm font-medium text-gray-500 mb-1">Potential savings</div>
-            <div className="text-3xl font-bold text-gray-900">$40</div>
-          </div>
+              {/* Potential Savings */}
+              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                <div className="text-sm font-medium text-slate-400 mb-2">Potential Savings</div>
+                <div className="text-2xl font-bold text-white">${(dashboardData?.potentialSavings / 1000 || 0)}K</div>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-6">
           {/* Alerts Section - Full Width */}
-          <div className="col-span-3 bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="col-span-3 rounded-lg shadow-sm p-6 mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
-                <h3 className="text-lg font-semibold text-gray-900 mr-2">Alerts</h3>
+                <h3 className="text-lg font-semibold text-white mr-2">Alerts</h3>
                 <div className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   2
                 </div>
               </div>
               <button 
                 onClick={() => setShowAllAlerts(!showAllAlerts)}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium"
               >
                 {showAllAlerts ? 'Show less' : 'View all'}
                 <ChevronRight className="inline h-4 w-4 ml-1" />
@@ -618,88 +673,88 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                 <div className="flex-shrink-0">
                   <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-medium text-red-800">High Spend Alert</h4>
-                  <p className="text-sm text-red-700 mt-1">
+                  <h4 className="text-sm font-medium text-red-300">High Spend Alert</h4>
+                  <p className="text-sm text-red-200 mt-1">
                     Cloud Account 1 has the highest spend of $2.4M this quarter
                   </p>
                   <button 
                     onClick={onViewApplications}
-                    className="text-xs text-red-600 hover:text-red-800 underline mt-1 block"
+                    className="text-xs text-red-400 hover:text-red-300 underline mt-1 block"
                   >
                     View applications →
                   </button>
-                  <p className="text-xs text-red-600 mt-1">1 hour ago</p>
+                  <p className="text-xs text-slate-400 mt-1">1 hour ago</p>
                 </div>
               </div>
               
-              <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                 <div className="flex-shrink-0">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-medium text-blue-800">New Asset Created</h4>
-                  <p className="text-sm text-blue-700 mt-1">
+                  <h4 className="text-sm font-medium text-blue-300">New Asset Created</h4>
+                  <p className="text-sm text-blue-200 mt-1">
                     New EC2 instance (i-0a1b2c3d4e5f6789) created in Cloud Account 2
                   </p>
                   <button 
                     onClick={() => setSelectedAccount('ca-456')}
-                    className="text-xs text-blue-600 hover:text-blue-800 underline mt-1 block"
+                    className="text-xs text-blue-400 hover:text-blue-300 underline mt-1 block"
                   >
                     View applications →
                   </button>
-                  <p className="text-xs text-blue-600 mt-1">30 minutes ago</p>
+                  <p className="text-xs text-slate-400 mt-1">30 minutes ago</p>
                 </div>
               </div>
               
               {showAllAlerts && (
                 <>
-                  <div className="flex items-start space-x-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                  <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                     <div className="flex-shrink-0">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-medium text-orange-800">Resource Imbalance</h4>
-                      <p className="text-sm text-orange-700 mt-1">
+                      <h4 className="text-sm font-medium text-orange-300">Resource Imbalance</h4>
+                      <p className="text-sm text-orange-200 mt-1">
                         Cloud Account 1 has 3x more resources than other accounts
                       </p>
                       <button 
                         onClick={() => setSelectedAccount('ca-123')}
-                        className="text-xs text-orange-600 hover:text-orange-800 underline mt-1 block"
+                        className="text-xs text-orange-400 hover:text-orange-300 underline mt-1 block"
                       >
                         View applications →
                       </button>
-                      <p className="text-xs text-orange-600 mt-1">2 hours ago</p>
+                      <p className="text-xs text-slate-400 mt-1">2 hours ago</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                     <div className="flex-shrink-0">
                       <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-medium text-red-800">Compute Outage</h4>
-                      <p className="text-sm text-red-700 mt-1">
+                      <h4 className="text-sm font-medium text-red-300">Compute Outage</h4>
+                      <p className="text-sm text-red-200 mt-1">
                         EC2 instance i-de0b6b3a7640000 in us-east-1 is unresponsive
                       </p>
-                      <p className="text-xs text-red-600 mt-1">15 minutes ago</p>
+                      <p className="text-xs text-slate-400 mt-1">15 minutes ago</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
                     <div className="flex-shrink-0">
                       <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-sm font-medium text-red-800">Disk Outage</h4>
-                      <p className="text-sm text-red-700 mt-1">
+                      <h4 className="text-sm font-medium text-red-300">Disk Outage</h4>
+                      <p className="text-sm text-red-200 mt-1">
                         EBS volume vol-6124fee993bc0000 experiencing I/O errors
                       </p>
-                      <p className="text-xs text-red-600 mt-1">5 minutes ago</p>
+                      <p className="text-xs text-slate-400 mt-1">5 minutes ago</p>
                     </div>
                   </div>
                 </>
@@ -708,25 +763,27 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           </div>
         </div>
 
-        {/* Spends & Savings Chart - Full Width Below Alerts */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        {/* Spends & Savings Chart - Only show when no search term */}
+        {!searchTerm.trim() && (
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Spends & Savings</h3>
+            <h3 className="text-lg font-semibold text-white">Spends & Savings</h3>
             <div className="relative">
               <button
                 onClick={() => setShowSortDropdown(!showSortDropdown)}
-                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="p-2 rounded-lg hover:opacity-80"
+                style={{ border: '1px solid #475569' }}
                 aria-label="Sort"
               >
-                <BarChart3 className="h-5 w-5 text-gray-500" />
+                <BarChart3 className="h-5 w-5 text-slate-400" />
               </button>
               {showSortDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="absolute right-0 top-full mt-2 w-72 rounded-lg shadow-lg z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                   {sortOptions.map((option) => (
                     <button
                       key={option}
                       onClick={() => { setSortBy(option); setShowSortDropdown(false); }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg"
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:opacity-80 first:rounded-t-lg last:rounded-b-lg"
                     >
                       {option}
                     </button>
@@ -739,7 +796,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           {/* Chart Container */}
           <div className="relative">
             <div className="flex items-end justify-between h-64 mb-4 px-4">
-              {filteredChartData.map((data) => {
+              {filteredChartData.map((data, index) => {
                 const chartHeight = 200; // px - keep columns within chart area
                 // Scale each stacked segment against the maximum TOTAL so stacks never exceed chartHeight
                 const spendingHeight = (data.spendings / maxValue) * chartHeight;
@@ -751,54 +808,58 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                   <div
                     key={data.account}
                     className="relative flex items-end space-x-2 group cursor-pointer"
+                    style={{ width: `${100 / filteredChartData.length}%`, justifyContent: 'center' }}
                     onMouseEnter={() => setHoveredAccount(data.account)}
                     onMouseLeave={() => setHoveredAccount(null)}
                     onClick={() => handleChartBarClick(data.account)}
                   >
                     {/* Tooltip */}
-                    {hoveredAccount === data.account && data.account === 6 && (
-                      <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 text-sm whitespace-nowrap z-10">
-                        <div className="font-bold text-gray-900 mb-2">Cloud Account 6</div>
-                        <div className="text-gray-600 mb-1">Spends - $700k</div>
-                        <div className="text-gray-600 mb-1">Savings - $600k</div>
-                        <div className="text-gray-600 mb-1">Potential savings - $650k</div>
-                        <div className="text-gray-600">Efficiency - 90%</div>
+                    {hoveredAccount === data.account && (
+                      <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 shadow-lg rounded-lg px-4 py-3 text-sm whitespace-nowrap z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                        <div className="font-bold text-white mb-2">Cloud Account {data.account}</div>
+                        <div className="text-slate-300 mb-1">Spends - ${data.spendings}k</div>
+                        <div className="text-slate-300 mb-1">Savings - ${data.savings}k</div>
+                        <div className="text-slate-300 mb-1">Potential savings - ${data.potential}k</div>
+                        <div className="text-slate-300">Efficiency - {data.efficiency}%</div>
                       </div>
                     )}
 
-                    {/* Main Stacked Bar */}
-                    <div className="relative flex flex-col items-center">
-                      <div className="w-8 relative" style={{ height: `${200}px` }}>
-                        {/* Spendings (Bottom - Red) */}
+                    {/* Chart Bars Container */}
+                    <div className="flex items-end space-x-2 justify-center">
+                      {/* Main Stacked Bar */}
+                      <div className="relative flex flex-col items-center">
+                        <div className="w-8 relative" style={{ height: `${200}px` }}>
+                          {/* Spendings (Bottom - Red) */}
+                          <div
+                            className="absolute bottom-0 w-full bg-red-300 transition-all duration-200"
+                            style={{ height: `${Math.max(spendingHeight, 8)}px` }}
+                          ></div>
+                          {/* Savings (Middle - Blue) */}
+                          <div
+                            className="absolute w-full bg-blue-300 transition-all duration-200"
+                            style={{ 
+                              height: `${Math.max(savingsHeight, 8)}px`,
+                              bottom: `${Math.max(spendingHeight, 8)}px`
+                            }}
+                          ></div>
+                          {/* Potential Savings (Top - Green) */}
+                          <div
+                            className="absolute w-full bg-green-400 transition-all duration-200"
+                            style={{ 
+                              height: `${Math.max(potentialHeight, 8)}px`,
+                              bottom: `${Math.max(spendingHeight + savingsHeight, 16)}px`
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      {/* Efficiency Bar (Right - Grey) */}
+                      <div className="relative flex flex-col items-center">
                         <div
-                          className="absolute bottom-0 w-full bg-red-300 transition-all duration-200"
-                          style={{ height: `${Math.max(spendingHeight, 8)}px` }}
-                        ></div>
-                        {/* Savings (Middle - Blue) */}
-                        <div
-                          className="absolute w-full bg-blue-300 transition-all duration-200"
-                          style={{ 
-                            height: `${Math.max(savingsHeight, 8)}px`,
-                            bottom: `${Math.max(spendingHeight, 8)}px`
-                          }}
-                        ></div>
-                        {/* Potential Savings (Top - Green) */}
-                        <div
-                          className="absolute w-full bg-green-400 transition-all duration-200"
-                          style={{ 
-                            height: `${Math.max(potentialHeight, 8)}px`,
-                            bottom: `${Math.max(spendingHeight + savingsHeight, 16)}px`
-                          }}
+                          className="w-6 bg-gray-400 transition-all duration-200"
+                          style={{ height: `${Math.max(efficiencyHeight, 8)}px` }}
                         ></div>
                       </div>
-                    </div>
-
-                    {/* Efficiency Bar (Right - Grey) */}
-                    <div className="relative flex flex-col items-center">
-                      <div
-                        className="w-6 bg-gray-400 transition-all duration-200"
-                        style={{ height: `${Math.max(efficiencyHeight, 8)}px` }}
-                      ></div>
                     </div>
                   </div>
                 );
@@ -807,8 +868,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
 
             {/* X-axis Labels */}
             <div className="flex justify-between px-4 mb-4">
-              {filteredChartData.map((data) => (
-                <div key={data.account} className="text-xs text-gray-600 text-center flex-1">
+              {filteredChartData.map((data, index) => (
+                <div key={data.account} className="text-xs text-slate-400 text-center" style={{ width: `${100 / filteredChartData.length}%` }}>
                   Cloud<br />Account {data.account}
                 </div>
               ))}
@@ -818,88 +879,93 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-300 rounded-full"></div>
-                <span className="text-gray-600">Spendings</span>
+                <span className="text-slate-400">Spendings</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-blue-300 rounded-full"></div>
-                <span className="text-gray-600">Savings</span>
+                <span className="text-slate-400">Savings</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-gray-600">Potential Savings</span>
+                <span className="text-slate-400">Potential Savings</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                <span className="text-gray-600">Efficiency</span>
+                <span className="text-slate-400">Efficiency</span>
               </div>
             </div>
           </div>
         </div>
+        )}
 
-        {/* Two-column section replicating reference (Instance breakdown + On Spot savings) */}
+        {/* Two-column section replicating reference (Instance breakdown + On Spot savings) - Only show when no search term */}
+        {!searchTerm.trim() && (
         <div className="grid grid-cols-3 gap-6 mt-6">
           {/* Left: Instance breakdown donut */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Instance breakdown</h3>
-            <div className="flex items-center">
-              {/* Donut */}
-              <div className="relative" style={{ width: 220, height: 220 }}>
-                <div
-                  className="rounded-full"
-                  style={{
-                    width: '220px',
-                    height: '220px',
-                    background: 'conic-gradient(#00BCD4 0 70%, #4CAF50 70% 100%)'
-                  }}
-                ></div>
-                {/* Inner hole */}
+          <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+            <h3 className="text-lg font-semibold text-white mb-6">Instance breakdown</h3>
+            <div className="flex items-center justify-center">
+              {/* Donut Chart */}
+              <div className="relative" style={{ width: 180, height: 180 }}>
+                <svg width="180" height="180" className="transform -rotate-90">
+                  {/* On Spot - 70% */}
+                  <circle
+                    cx="90"
+                    cy="90"
+                    r="70"
+                    fill="none"
+                    stroke="#00BCD4"
+                    strokeWidth="28"
+                    strokeDasharray={`${70 * 4.4} ${30 * 4.4}`}
+                    strokeDashoffset="0"
+                  />
+                  {/* On Demand - 30% */}
+                  <circle
+                    cx="90"
+                    cy="90"
+                    r="70"
+                    fill="none"
+                    stroke="#4CAF50"
+                    strokeWidth="28"
+                    strokeDasharray={`${30 * 4.4} ${70 * 4.4}`}
+                    strokeDashoffset={`-${70 * 4.4}`}
+                  />
+                </svg>
+                {/* Center text */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-white rounded-full" style={{ width: 140, height: 140 }}></div>
-                  <div className="absolute text-sm font-semibold text-gray-800">70%</div>
-                </div>
-
-                {/* Tooltip callout for On Demand */}
-                <div className="absolute -right-6 top-16">
-                  <div className="relative bg-white border border-gray-200 rounded-lg shadow px-4 py-3 text-sm text-gray-700">
-                    <div className="font-semibold text-gray-900 mb-1">On Demand</div>
-                    <div>Usage - 30%</div>
-                    <div>Prod - 25%</div>
-                    <div>Non Prod - 5%</div>
-                    {/* Arrow */}
-                    <div className="absolute -left-2 top-6 w-0 h-0 border-t-8 border-b-8 border-r-8 border-t-transparent border-b-transparent border-r-gray-200"></div>
-                    <div className="absolute -left-[7px] top-[26px] w-0 h-0 border-t-7 border-b-7 border-r-7 border-t-transparent border-b-transparent border-r-white"></div>
-                  </div>
+                  <span className="text-2xl font-bold text-white">70%</span>
                 </div>
               </div>
 
               {/* Legend */}
               <div className="ml-8 space-y-3">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CAF50' }}></div>
-                  <span className="text-gray-700 text-sm">On Demand</span>
+                  <span className="text-slate-400 text-sm">On Demand</span>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#00BCD4' }}></div>
-                  <span className="text-gray-700 text-sm">On Spot</span>
+                  <span className="text-slate-400 text-sm">On Spot</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right: On Spot savings bars */}
-          <div className="col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="col-span-2 rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">Spot Utilization Savings</h3>
+              <h3 className="text-lg font-semibold text-white">Spot Utilization Savings</h3>
               <div className="relative">
                 <button
                   onClick={() => setShowSpotSortDropdown(!showSpotSortDropdown)}
-                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="p-2 rounded-lg hover:opacity-80"
+                  style={{ border: '1px solid #475569' }}
                   aria-label="Sort On Spot"
                 >
-                  <BarChart3 className="h-5 w-5 text-gray-500" />
+                  <BarChart3 className="h-5 w-5 text-slate-400" />
                 </button>
                 {showSpotSortDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                  <div className="absolute right-0 top-full mt-2 w-72 rounded-lg shadow-lg z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                     {[
                       'Savings (Highest to Lowest)',
                       'Savings (Lowest to Highest)',
@@ -911,7 +977,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       <button
                         key={option}
                         onClick={() => { setSpotSortBy(option); setShowSpotSortDropdown(false); }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg"
+                        className="w-full text-left px-4 py-2 text-sm text-white hover:opacity-80 first:rounded-t-lg last:rounded-b-lg"
                       >
                         {option}
                       </button>
@@ -933,13 +999,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                      onMouseLeave={() => setHoveredSpotAccount(null)}
                      onClick={() => { setSelectedSpotAccountForDetails(data.account); setShowSpotDetails(true); }}
                    >
-                     {hoveredSpotAccount === data.account && data.account === 1 && (
-                       <div className="absolute -top-28 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-2 text-xs z-10 whitespace-nowrap">
-                         <div className="font-bold text-gray-900 mb-1">Cloud Account 1</div>
-                         <div className="text-gray-600">On Spot Savings - $500k</div>
-                         <div className="text-gray-600">On Spot cost - $700k</div>
-                         <div className="text-gray-600">On Demand cost - $1200k</div>
-                         <div className="text-gray-600">Savings - 55%</div>
+                     {hoveredSpotAccount === data.account && (
+                       <div className="absolute -top-28 left-1/2 transform -translate-x-1/2 shadow-lg rounded-lg px-3 py-2 text-xs z-10 whitespace-nowrap" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
+                         <div className="font-bold text-white mb-1">Cloud Account {data.account}</div>
+                         <div className="text-slate-300">On Spot Savings - ${data.savings}k</div>
+                         <div className="text-slate-300">On Spot cost - ${data.spot}k</div>
+                         <div className="text-slate-300">On Demand cost - ${data.onDemand}k</div>
+                         <div className="text-slate-300">Savings - {Math.round((data.savings / data.onDemand) * 100)}%</div>
                        </div>
                      )}
 
@@ -968,7 +1034,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                 {(() => {
                   const spotData = getSortedSpotData().filter(d => accountMatchesSearch(d.account));
                   return spotData.map((d) => (
-                    <div key={d.account} className="text-xs text-gray-600 text-center flex-1">
+                    <div key={d.account} className="text-xs text-slate-400 text-center flex-1">
                       Cloud<br />Account {d.account}
                     </div>
                   ));
@@ -979,27 +1045,28 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-[#4CAF50] rounded-full"></div>
-                  <span className="text-gray-600">On Demand</span>
+                  <span className="text-slate-400">On Demand</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-[#00BCD4] rounded-full"></div>
-                  <span className="text-gray-600">Spot</span>
+                  <span className="text-slate-400">Spot</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-[#f28b82] rounded-full"></div>
-                  <span className="text-gray-600">Savings on Spot</span>
+                  <span className="text-slate-400">Savings on Spot</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        )}
 
-        {/* Savings on Application modal */}
+        {/* Spot Utilization modal */}
         {showSpotDetails && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl w-[1100px] mt-16 border-2 border-blue-300">
-              <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Savings on Application</h3>
+            <div className="rounded-lg shadow-xl w-[1100px] mt-16" style={{ backgroundColor: '#1e293b', border: '2px solid #3b82f6' }}>
+              <div className="flex items-center justify-between p-4" style={{ borderBottom: '1px solid #334155' }}>
+                <h3 className="text-lg font-semibold text-white">Spot Utilization Savings</h3>
                 <div className="flex items-center space-x-2">
                   <div className="relative">
                     <button
@@ -1010,7 +1077,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       <Filter className="h-5 w-5 text-gray-600" />
                     </button>
                     {showSavingsSortDropdown && (
-                      <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                      <div className="absolute right-0 top-full mt-2 w-80 rounded-lg shadow-lg z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                         {[
                           'On Demand cost (Highest to Lowest)',
                           'On Demand cost (Lowest to Highest)',
@@ -1024,7 +1091,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                           <button
                             key={option}
                             onClick={() => { setSavingsSortBy(option); setShowSavingsSortDropdown(false); }}
-                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg"
+                            className="w-full text-left px-4 py-2 text-sm text-white hover:opacity-80 first:rounded-t-lg last:rounded-b-lg"
                           >
                             {option}
                           </button>
@@ -1032,8 +1099,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       </div>
                     )}
                   </div>
-                  <button onClick={() => setShowSpotDetails(false)} className="p-2 hover:bg-gray-100 rounded">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  <button onClick={() => setShowSpotDetails(false)} className="p-2 hover:opacity-80 rounded">
+                    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
                 </div>
               </div>
@@ -1041,7 +1108,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               <div className="overflow-x-auto">
                 <table className="min-w-full">
                   <thead>
-                    <tr className="border-b border-gray-200 text-gray-900">
+                    <tr style={{ borderBottom: '1px solid #334155' }} className="text-white">
                       <th className="text-left py-3 px-6 font-medium">Cloud Account</th>
                       <th className="text-left py-3 px-6 font-medium">Application name</th>
                       <th className="text-left py-3 px-6 font-medium">
@@ -1099,14 +1166,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       return filteredRows.slice(0, data.length).map((_, idx) => {
                         const row = data[idx];
                         return (
-                          <tr key={idx} className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                            <td className="py-4 px-6 text-gray-900">{row.cloudAccount}</td>
-                            <td className="py-4 px-6 text-gray-900">{row.applicationName}</td>
-                            <td className="py-4 px-6 text-gray-900">${row.onDemand}</td>
-                            <td className="py-4 px-6 text-gray-900">${row.withSpot}</td>
-                            <td className="py-4 px-6 text-gray-900">${row.withoutSpot}</td>
-                            <td className="py-4 px-6 text-gray-900">{row.percent}%</td>
-                            <td className="py-4 px-4 text-gray-400"><ChevronRight className="h-4 w-4" /></td>
+                          <tr key={idx} style={{ borderBottom: '1px solid #334155' }} className={idx % 2 === 0 ? '' : 'bg-slate-800/50'}>
+                            <td className="py-4 px-6 text-white">{row.cloudAccount}</td>
+                            <td className="py-4 px-6 text-white">{row.applicationName}</td>
+                            <td className="py-4 px-6 text-white">${row.onDemand}</td>
+                            <td className="py-4 px-6 text-white">${row.withSpot}</td>
+                            <td className="py-4 px-6 text-white">${row.withoutSpot}</td>
+                            <td className="py-4 px-6 text-white">{row.percent}%</td>
+                            <td className="py-4 px-4 text-slate-400"><ChevronRight className="h-4 w-4" /></td>
                           </tr>
                         );
                       });
@@ -1118,27 +1185,29 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           </div>
         )}
 
-        {/* Compare cost across Quarters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
+        {/* Compare cost across Quarters - Only show when no search term */}
+        {!searchTerm.trim() && (
+        <div className="rounded-lg shadow-sm p-6 mt-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Compare cost across Quarters</h3>
+            <h3 className="text-lg font-semibold text-white">Compare cost across Quarters</h3>
             <div className="relative w-64">
               <button
-                className="w-full flex items-center justify-between border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm text-white hover:opacity-80"
+                style={{ border: '1px solid #475569' }}
                 onClick={() => setShowCloudPicker(!showCloudPicker)}
               >
                 <span>Selected: {selectedTrendClouds.length} clouds</span>
-                <ChevronDown className="h-4 w-4 text-gray-400" />
+                <ChevronDown className="h-4 w-4 text-slate-400" />
               </button>
               {showCloudPicker && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-2">
+                <div className="absolute right-0 top-full mt-2 w-64 rounded-lg shadow-lg z-10 p-2" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                   <div className="flex items-center justify-between px-2 py-1">
-                    <button className="text-xs text-blue-600 hover:underline" onClick={() => setSelectedTrendClouds(Array.from({ length: 10 }, (_, i) => i + 1))}>Select all</button>
-                    <button className="text-xs text-gray-500 hover:underline" onClick={() => setSelectedTrendClouds([])}>Clear</button>
+                    <button className="text-xs text-blue-400 hover:underline" onClick={() => setSelectedTrendClouds(Array.from({ length: 10 }, (_, i) => i + 1))}>Select all</button>
+                    <button className="text-xs text-slate-400 hover:underline" onClick={() => setSelectedTrendClouds([])}>Clear</button>
                   </div>
                   <div className="max-h-48 overflow-y-auto mt-1 space-y-1">
                     {Array.from({ length: 10 }, (_, idx) => idx + 1).map((acc) => (
-                      <label key={acc} className="flex items-center space-x-2 px-2 py-1 text-sm hover:bg-gray-50 rounded cursor-pointer">
+                      <label key={acc} className="flex items-center space-x-2 px-2 py-1 text-sm hover:opacity-80 rounded cursor-pointer">
                         <input
                           type="checkbox"
                           checked={selectedTrendClouds.includes(acc)}
@@ -1151,7 +1220,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                           }}
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
-                        <span>Cloud Account {acc}</span>
+                        <span className="text-white">Cloud Account {acc}</span>
                       </label>
                     ))}
                   </div>
@@ -1177,115 +1246,68 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             ))}
           </div>
 
-          {/* Trend Chart */}
-          <div className="relative h-80 mt-6">
-            <svg width="100%" height="100%" viewBox="0 0 800 300" className="overflow-visible">
-              {/* Grid lines */}
-              {Array.from({ length: 6 }).map((_, i) => (
-                <line
-                  key={i}
-                  x1="60"
-                  y1={50 + i * 40}
-                  x2="740"
-                  y2={50 + i * 40}
-                  stroke="#f3f4f6"
-                  strokeWidth="1"
-                />
-              ))}
-              
-              {/* Y-axis */}
-              <line x1="60" y1="50" x2="60" y2="250" stroke="#9ca3af" strokeWidth="2"/>
-              
-              {/* X-axis */}
-              <line x1="60" y1="250" x2="740" y2="250" stroke="#9ca3af" strokeWidth="2"/>
-
-              {/* Trend lines */}
-              {selectedTrendClouds.map((account) => {
-                const data = trendData[selectedTrendMetric][account];
-                const color = accountColors[(account - 1) % accountColors.length];
+          {/* Heatmap */}
+          <div className="relative mt-6">
+            <div className="overflow-x-auto">
+              <div className="min-w-full">
+                {/* Quarter headers */}
+                <div className="flex mb-2">
+                  <div className="w-32"></div>
+                  {trendQuarters.map((quarter) => (
+                    <div key={quarter} className="flex-1 text-xs text-gray-600 text-center font-medium px-1">
+                      {quarter}
+                    </div>
+                  ))}
+                </div>
                 
-                const points = data.map((value, idx) => {
-                  const x = 60 + (idx * (680 / (trendQuarters.length - 1)));
+                {/* Heatmap rows */}
+                {selectedTrendClouds.map((account) => {
+                  const data = trendData[selectedTrendMetric][account];
                   const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
-                  const y = 250 - ((value / maxVal) * 200);
-                  return `${x},${y}`;
-                }).join(' ');
-
-                return (
-                  <g key={account}>
-                    <polyline
-                      points={points}
-                      fill="none"
-                      stroke={color}
-                      strokeWidth="2"
-                      className="hover:stroke-4"
-                    />
-                    {/* Data points */}
-                    {data.map((value, idx) => {
-                      const x = 60 + (idx * (680 / (trendQuarters.length - 1)));
-                      const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
-                      const y = 250 - ((value / maxVal) * 200);
-                      
-                      return (
-                        <circle
-                          key={idx}
-                          cx={x}
-                          cy={y}
-                          r="4"
-                          fill={color}
-                          className="hover:r-6 cursor-pointer"
-                          onMouseEnter={() => setHoveredTrendPoint({ account, quarterIdx: idx })}
-                          onMouseLeave={() => setHoveredTrendPoint(null)}
-                        />
-                      );
-                    })}
-                  </g>
-                );
-              })}
-
-              {/* X-axis labels */}
-              {trendQuarters.map((quarter, idx) => (
-                <text
-                  key={idx}
-                  x={60 + (idx * (680 / (trendQuarters.length - 1)))}
-                  y="270"
-                  textAnchor="middle"
-                  className="text-xs fill-gray-600"
-                >
-                  {quarter}
-                </text>
-              ))}
-
-              {/* Y-axis labels */}
-              {Array.from({ length: 6 }).map((_, i) => {
-                const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
-                const value = maxVal - (i * (maxVal / 5));
-                const suffix = selectedTrendMetric === 'Efficiency' ? '%' : 'k';
-                
-                return (
-                  <text
-                    key={i}
-                    x="50"
-                    y={55 + i * 40}
-                    textAnchor="end"
-                    className="text-xs fill-gray-600"
-                  >
-                    {value}{suffix}
-                  </text>
-                );
-              })}
-            </svg>
+                  const minVal = selectedTrendMetric === 'Efficiency' ? 0 : 0;
+                  
+                  return (
+                    <div key={account} className="flex items-center mb-1">
+                      <div className="w-32 text-sm text-white font-medium pr-4">
+                        Cloud Account {account}
+                      </div>
+                      {data.map((value, idx) => {
+                        const intensity = (value - minVal) / (maxVal - minVal);
+                        const opacity = Math.max(0.1, intensity);
+                        const bgColor = selectedTrendMetric === 'Efficiency' 
+                          ? `rgba(34, 197, 94, ${opacity})` // Green for efficiency
+                          : `rgba(59, 130, 246, ${opacity})`; // Blue for costs
+                        
+                        return (
+                          <div
+                            key={idx}
+                            className="flex-1 h-8 mx-1 rounded flex items-center justify-center text-xs font-medium cursor-pointer transition-all hover:scale-105"
+                            style={{ backgroundColor: bgColor }}
+                            onMouseEnter={() => setHoveredTrendPoint({ account, quarterIdx: idx })}
+                            onMouseLeave={() => setHoveredTrendPoint(null)}
+                          >
+                            {value}{selectedTrendMetric === 'Efficiency' ? '%' : 'k'}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
             {/* Tooltip */}
-            {hoveredTrendPoint && hoveredTrendPoint.account === 6 && hoveredTrendPoint.quarterIdx === 0 && (
-              <div className="absolute bg-white border border-gray-200 shadow-lg rounded-lg px-3 py-2 text-xs z-10 pointer-events-none"
+            {hoveredTrendPoint && (
+              <div className="absolute shadow-lg rounded-lg px-3 py-2 text-xs z-10 pointer-events-none"
                    style={{ 
-                     left: `${60 + (hoveredTrendPoint.quarterIdx * (680 / (trendQuarters.length - 1))) - 40}px`,
-                     top: '20px'
+                     backgroundColor: '#1e293b',
+                     border: '1px solid #334155',
+                     left: `${200 + (hoveredTrendPoint.quarterIdx * 60)}px`,
+                     top: `${20 + (selectedTrendClouds.indexOf(hoveredTrendPoint.account) * 36)}px`
                    }}>
-                <div className="font-bold text-gray-900 mb-1">Cloud Account 6</div>
-                <div className="text-gray-600">{trendQuarters[hoveredTrendPoint.quarterIdx]}</div>
-                <div className="text-gray-600">
+                <div className="font-bold text-white mb-1">Cloud Account {hoveredTrendPoint.account}</div>
+                <div className="text-slate-400">{trendQuarters[hoveredTrendPoint.quarterIdx]}</div>
+                <div className="text-slate-400">
                   {selectedTrendMetric}: {trendData[selectedTrendMetric][hoveredTrendPoint.account][hoveredTrendPoint.quarterIdx]}
                   {selectedTrendMetric === 'Efficiency' ? '%' : 'k'}
                 </div>
@@ -1294,18 +1316,36 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
-            {selectedTrendClouds.map((account) => (
-              <div key={account} className="flex items-center space-x-2">
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: accountColors[(account - 1) % accountColors.length] }}
-                ></div>
-                <span className="text-sm text-gray-600">Cloud Account {account}</span>
+          <div className="flex items-center justify-center gap-6 mt-6">
+            <div className="flex items-center space-x-2">
+              <div className="text-sm text-slate-400">Low</div>
+              <div className="flex space-x-1">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const opacity = (i + 1) * 0.2;
+                  const bgColor = selectedTrendMetric === 'Efficiency' 
+                    ? `rgba(34, 197, 94, ${opacity})` 
+                    : `rgba(59, 130, 246, ${opacity})`;
+                  return (
+                    <div 
+                      key={i}
+                      className="w-4 h-4 rounded"
+                      style={{ backgroundColor: bgColor }}
+                    ></div>
+                  );
+                })}
               </div>
-            ))}
+              <div className="text-sm text-slate-400">High</div>
+            </div>
           </div>
         </div>
+        )}
+
+        {/* Compute Modal */}
+        <ComputeModal
+          isOpen={showComputeModal}
+          onClose={() => setShowComputeModal(false)}
+          computeId={selectedComputeId}
+        />
       </div>
     </div>
   );
