@@ -44,31 +44,14 @@ export function useApi<T>(
     };
   }, dependencies);
 
-  const refetch = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiCall();
-      if (response.success) {
-        setData(response.data);
-      } else {
-        setError(response.error || 'An error occurred');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { data, loading, error, refetch };
+  return { data, loading, error, refetch: () => fetchData() };
 }
 
 // Specific hooks for common API calls
-export function useDashboardSummary(params?: { period?: string }) {
+export function useDashboardSummary(period?: string) {
   return useApi(
-    () => apiService.getDashboardSummary(params),
-    [params?.period]
+    () => apiService.getDashboardSummary({ period }),
+    [period]
   );
 }
 
