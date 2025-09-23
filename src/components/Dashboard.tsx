@@ -14,7 +14,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
   const [showSavingsDetails, setShowSavingsDetails] = useState<{ [key: number]: boolean }>({});
 
   // API hooks
-  const { data: dashboardData, loading: dashboardLoading } = useDashboardSummary({ period: selectedPeriod });
+  const { data: dashboardData, loading: dashboardLoading, error: dashboardError } = useDashboardSummary({ period: selectedPeriod });
   const { data: alertsData, loading: alertsLoading } = useAlerts({ severity: 'critical', limit: 5 });
   const { data: recommendationsData, loading: recommendationsLoading } = useRecommendations({ limit: 3 });
   const { data: trendsData, loading: trendsLoading } = useTrends({ period: selectedPeriod, type: 'spends' });
