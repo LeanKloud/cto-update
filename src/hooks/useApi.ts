@@ -44,7 +44,11 @@ export function useApi<T>(
     };
   }, dependencies);
 
-  return { data, loading, error, refetch: () => fetchData() };
+  const refetch = async () => {
+    await fetchData();
+  };
+
+  return { data, loading, error, refetch };
 }
 
 // Specific hooks for common API calls

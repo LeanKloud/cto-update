@@ -15,11 +15,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
 
   // API hooks
   const { data: dashboardData, loading: dashboardLoading } = useDashboardSummary({ period: selectedPeriod });
-  const { data: alertsData } = useAlerts({ severity: 'critical', limit: 5 });
-  const { data: recommendationsData } = useRecommendations({ limit: 3 });
-  const { data: trendsData } = useTrends({ period: selectedPeriod, type: 'spends' });
-  const { data: attentionData } = useAttentionData({ category: selectedCategory });
-  const { data: spotData } = useSpotUtilization();
+  const { data: alertsData, loading: alertsLoading } = useAlerts({ severity: 'critical', limit: 5 });
+  const { data: recommendationsData, loading: recommendationsLoading } = useRecommendations({ limit: 3 });
+  const { data: trendsData, loading: trendsLoading } = useTrends({ period: selectedPeriod, type: 'spends' });
+  const { data: attentionData, loading: attentionLoading } = useAttentionData({ category: selectedCategory });
+  const { data: spotData, loading: spotLoading } = useSpotUtilization();
 
   // Dark theme color palette
   const darkThemeColors = {
@@ -100,8 +100,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
 
   if (dashboardLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-slate-400">Loading dashboard...</div>
+      <div className="flex items-center justify-center h-full" style={{ backgroundColor: '#0F172A' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <div className="text-slate-400">Loading dashboard...</div>
+        </div>
       </div>
     );
   }
