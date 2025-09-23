@@ -1,48 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  Search, 
-  ChevronDown, 
-  TrendingDown, 
-  TrendingUp, 
-  ChevronRight,
-  Bell,
-  BarChart3,
-  Filter,
-  ArrowUpDown,
-  Download
-} from 'lucide-react';
-import { useDashboardSummary, useAlerts } from '../hooks/useApi';
-import ComputeModal from './ComputeModal';
-
-interface ApplicationData {
-  cloudAccount: string;
-  applicationName: string;
-  computeUsage: number;
-  dbUsage: number;
-  storage: number;
-  diskUtilisation: number;
-  idleInstances: number;
-  spends: number;
-  savings: number;
-  status: 'active' | 'inactive';
-}
-
-interface ChartData {
-  account: number;
-  spendings: number;
-  savings: number;
-  potential: number;
-  efficiency: number;
-}
-
-interface SavingsRow {
-  cloudAccount: string;
-  applicationName: string;
-  onDemand: number;
-  withSpot: number;
-  withoutSpot: number;
-  percent: number;
-}
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { TrendingUp, TrendingDown, AlertTriangle, DollarSign, Server, Database, HardDrive, Activity, Bell, Eye, EyeOff } from 'lucide-react';
+import { useDashboardSummary, useAlerts, useRecommendations, useTrends, useAttentionData, useSpotUtilization } from '../hooks/useApi';
 
 interface DashboardProps {
   onViewApplications: () => void;
@@ -50,1302 +9,482 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccountDetails }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState('AWS');
-  const [selectedQuarter, setSelectedQuarter] = useState('2025, Q1');
+  const [selectedPeriod, setSelectedPeriod] = useState('2025, Q1');
+  const [selectedCategory, setSelectedCategory] = useState<'usage-cost' | 'disk-utilisation' | 'idle-instances'>('usage-cost');
+  const [showSavingsDetails, setShowSavingsDetails] = useState<{ [key: number]: boolean }>({});
 
   // API hooks
-  const { data: dashboardData, loading: dashboardLoading } = useDashboardSummary(selectedQuarter);
-  const { data: alertsData } = useAlerts({ limit: 5 });
-  const alerts = alertsData || [];
-  const [hoveredAccount, setHoveredAccount] = useState<number | null>(null);
-  const [showAttentionView, setShowAttentionView] = useState(false);
-  const [selectedCloudAccount, setSelectedCloudAccount] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState('Usage & Cost');
-  const [sortBy, setSortBy] = useState('');
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
-  const [hoveredSlice, setHoveredSlice] = useState<string | null>(null);
-  const [hoveredSpotAccount, setHoveredSpotAccount] = useState<number | null>(null);
-  const [showSpotSortDropdown, setShowSpotSortDropdown] = useState(false);
-  const [spotSortBy, setSpotSortBy] = useState('');
-  const [selectedTrendMetric, setSelectedTrendMetric] = useState<'Spends' | 'Savings' | 'Potential savings' | 'Efficiency'>('Spends');
-  const [hoveredTrendPoint, setHoveredTrendPoint] = useState<{ account: number; quarterIdx: number } | null>(null);
-  const [selectedTrendClouds, setSelectedTrendClouds] = useState<number[]>(Array.from({ length: 10 }, (_, i) => i + 1));
-  const [showCloudPicker, setShowCloudPicker] = useState(false);
-  const [showSpotDetails, setShowSpotDetails] = useState(false);
-  const [selectedSpotAccountForDetails, setSelectedSpotAccountForDetails] = useState<number | null>(null);
-  const [showSavingsSortDropdown, setShowSavingsSortDropdown] = useState(false);
-  const [savingsSortBy, setSavingsSortBy] = useState('');
-  const [showAttentionFilterDropdown, setShowAttentionFilterDropdown] = useState(false);
-  const [attentionFilter, setAttentionFilter] = useState('All');
-  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
-  const [showAllAlerts, setShowAllAlerts] = useState(false);
-  const [selectedComputeId, setSelectedComputeId] = useState('');
-  const [showComputeModal, setShowComputeModal] = useState(false);
+  const { data: dashboardData, loading: dashboardLoading } = useDashboardSummary({ period: selectedPeriod });
+  const { data: alertsData } = useAlerts({ severity: 'critical', limit: 5 });
+  const { data: recommendationsData } = useRecommendations({ limit: 3 });
+  const { data: trendsData } = useTrends({ period: selectedPeriod, type: 'spends' });
+  const { data: attentionData } = useAttentionData({ category: selectedCategory });
+  const { data: spotData } = useSpotUtilization();
 
-  // Handle search navigation
-  React.useEffect(() => {
-    if (searchTerm.trim()) {
-      const term = searchTerm.trim().toLowerCase();
-      
-      // Check for exact cloud account search
-      if (term === 'cloud account 1') {
-        setSearchTerm('');
-        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 1' } });
-        window.dispatchEvent(event);
-        return;
-      }
-      if (term === 'cloud account 2') {
-        setSearchTerm('');
-        const event = new CustomEvent('navigateToCloudAccountApps', { detail: { cloudAccount: 'Cloud Account 2' } });
-        window.dispatchEvent(event);
-        return;
-      }
-      
-      // Check for exact application search
-      if (term === 'temp_core_01') {
-        setSearchTerm('');
-        const event = new CustomEvent('navigateToCloudAccountDetail', { detail: { cloudAccount: 'Cloud Account 1', applicationName: 'temp_core_01' } });
-        window.dispatchEvent(event);
-        return;
-      }
-      
-      // Check for exact compute ID search
-      if (term === 'vol-0707df985c67e6411') {
-        setSearchTerm('');
-        setSelectedComputeId('vol-0707df985c67e6411');
-        setShowComputeModal(true);
-        return;
-      }
-    }
-  }, [searchTerm, onViewAccountDetails]);
-  const getAttentionFilterOptions = () => {
-    if (activeTab === 'Usage & Cost') {
-      return ['All', 'Cloud Account 1', 'Cloud Account 2', 'Cloud Account 3'];
-    }
-    if (activeTab === 'Disk utilisation') {
-      return ['All', '> 70%', '> 65%', '> 60%'];
-    }
-    return ['All', '> 12', '> 10', '> 8', '> 5'];
-  };
-
-  const trendQuarters = ['2025, Q2','2025, Q1','2024, Q4','2024, Q3','2024, Q2','2024, Q1','2023, Q4','2023, Q3','2023, Q2','2023, Q1'];
-
-  // Static datasets shaped to visually match the reference. Units are in "k" for money and percent for efficiency
-  const trendData: Record<'Spends' | 'Savings' | 'Potential savings' | 'Efficiency', Record<number, number[]>> = {
-    Spends: {
-      1: [680, 690, 660, 720, 700, 690, 680, 740, 710, 720],
-      2: [640, 630, 650, 600, 640, 660, 670, 620, 660, 650],
-      3: [620, 610, 640, 700, 650, 620, 610, 640, 680, 670],
-      4: [600, 590, 620, 660, 640, 650, 660, 600, 560, 600],
-      5: [610, 600, 630, 670, 690, 700, 720, 760, 710, 690],
-      6: [700, 640, 680, 660, 650, 640, 660, 680, 690, 700], // 2025 Q2 tooltip target 700k
-      7: [590, 600, 620, 640, 660, 640, 610, 570, 620, 640],
-      8: [560, 570, 600, 620, 640, 630, 610, 560, 600, 610],
-      9: [580, 590, 620, 640, 610, 600, 640, 660, 690, 680],
-      10: [610, 620, 650, 660, 640, 630, 650, 670, 680, 690],
-    },
-    Savings: {
-      1: [540, 560, 520, 510, 550, 580, 600, 610, 580, 560],
-      2: [520, 540, 500, 490, 530, 560, 570, 580, 560, 540],
-      3: [500, 520, 540, 560, 520, 500, 520, 540, 560, 550],
-      4: [480, 500, 520, 540, 520, 500, 480, 460, 500, 520],
-      5: [560, 540, 520, 500, 520, 540, 560, 580, 560, 540],
-      6: [600, 560, 520, 580, 560, 540, 560, 560, 560, 560], // 2025 Q2 tooltip target 600k
-      7: [520, 500, 520, 540, 520, 500, 520, 540, 560, 540],
-      8: [500, 480, 500, 520, 500, 480, 500, 520, 540, 520],
-      9: [520, 500, 520, 540, 520, 500, 520, 540, 560, 540],
-      10: [540, 520, 540, 560, 540, 520, 540, 560, 560, 560],
-    },
-    'Potential savings': {
-      1: [600, 580, 560, 540, 520, 540, 560, 580, 600, 620],
-      2: [580, 560, 540, 520, 540, 560, 580, 600, 600, 600],
-      3: [620, 600, 580, 560, 540, 560, 580, 600, 620, 640],
-      4: [640, 620, 600, 580, 560, 540, 560, 580, 600, 620],
-      5: [660, 640, 600, 580, 560, 580, 600, 620, 640, 660],
-      6: [650, 600, 620, 640, 600, 580, 600, 620, 640, 650], // 2025 Q2 tooltip target 650k
-      7: [620, 600, 580, 560, 540, 560, 580, 600, 600, 620],
-      8: [600, 580, 560, 540, 520, 540, 560, 580, 600, 600],
-      9: [620, 600, 580, 560, 540, 560, 580, 600, 620, 640],
-      10: [640, 620, 600, 580, 560, 580, 600, 620, 640, 660],
-    },
-    Efficiency: {
-      1: [40, 42, 38, 36, 40, 44, 46, 48, 45, 43],
-      2: [38, 36, 35, 34, 36, 38, 40, 42, 40, 38],
-      3: [36, 34, 36, 38, 40, 38, 36, 34, 36, 38],
-      4: [34, 32, 34, 36, 38, 40, 38, 36, 34, 32],
-      5: [42, 40, 38, 36, 38, 40, 42, 44, 42, 40],
-      6: [30, 32, 34, 33, 32, 31, 32, 33, 34, 35], // 2025 Q2 tooltip target 30%
-      7: [36, 35, 34, 33, 34, 35, 36, 37, 36, 35],
-      8: [34, 33, 32, 31, 32, 33, 34, 35, 34, 33],
-      9: [35, 34, 33, 32, 33, 34, 35, 36, 35, 34],
-      10: [36, 35, 34, 33, 34, 35, 36, 37, 36, 35],
-    }
-  };
-
-  const accountColors = ['#3b82f6','#65a30d','#f97316','#ef4444','#8b5cf6','#0ea5e9','#06b6d4','#f43f5e','#22c55e','#a855f7'];
-
-  // Chart data for 10 cloud accounts (will be sorted based on sortBy)
-  const baseChartData: ChartData[] = [
-    { account: 1, spendings: 400, savings: 200, potential: 300, efficiency: 75 },
-    { account: 2, spendings: 600, savings: 150, potential: 400, efficiency: 65 },
-    { account: 3, spendings: 500, savings: 250, potential: 350, efficiency: 80 },
-    { account: 4, spendings: 300, savings: 100, potential: 200, efficiency: 60 },
-    { account: 5, spendings: 550, savings: 300, potential: 450, efficiency: 85 },
-    { account: 6, spendings: 700, savings: 600, potential: 650, efficiency: 90 },
-    { account: 7, spendings: 450, savings: 180, potential: 280, efficiency: 70 },
-    { account: 8, spendings: 520, savings: 220, potential: 380, efficiency: 75 },
-    { account: 9, spendings: 480, savings: 190, potential: 320, efficiency: 72 },
-    { account: 10, spendings: 580, savings: 280, potential: 420, efficiency: 82 }
-  ];
-
-  // Sort chart data based on selected sort option
-  const getSortedChartData = (): ChartData[] => {
-    const data = [...baseChartData];
+  // Dark theme color palette
+  const darkThemeColors = {
+    // Primary data series colors
+    primary: '#60A5FA',      // Light blue
+    secondary: '#34D399',    // Light green
+    tertiary: '#A78BFA',     // Light purple
+    quaternary: '#FBBF24',   // Light amber
     
-    switch (sortBy) {
-      case 'Efficiency (Highest to Lowest)':
-        return data.sort((a, b) => b.efficiency - a.efficiency);
-      case 'Efficiency (Lowest to Highest)':
-        return data.sort((a, b) => a.efficiency - b.efficiency);
-      case 'Spends (Highest to Lowest)':
-        return data.sort((a, b) => b.spendings - a.spendings);
-      case 'Spends (Lowest to Highest)':
-        return data.sort((a, b) => a.spendings - b.spendings);
-      case 'Savings (Highest to Lowest)':
-        return data.sort((a, b) => b.savings - a.savings);
-      case 'Savings (Lowest to Highest)':
-        return data.sort((a, b) => a.savings - b.savings);
-      case 'Potential Savings (Highest to Lowest)':
-        return data.sort((a, b) => b.potential - a.potential);
-      case 'Potential Savings (Lowest to Highest)':
-        return data.sort((a, b) => a.potential - b.potential);
-      default:
-        return data;
-    }
-  };
-
-  const chartData = getSortedChartData();
-  const accountMatchesSearch = (acc: number) => {
-    const q = searchTerm.trim().toLowerCase();
-    if (!q) return true;
-    return `cloud account ${acc}`.toLowerCase().includes(q) || String(acc).includes(q);
-  };
-  const filteredChartData = chartData.filter(d => accountMatchesSearch(d.account));
-
-  // Spot savings data for the On Spot Savings chart
-  const baseSpotData = [
-    { account: 1, onDemand: 4500, spot: 1200, savings: 500 },
-    { account: 2, onDemand: 1200, spot: 1200, savings: 0 },
-    { account: 3, onDemand: 1200, spot: 1200, savings: 0 },
-    { account: 4, onDemand: 2500, spot: 1500, savings: 4500 },
-    { account: 5, onDemand: 4500, spot: 1500, savings: 4500 },
-    { account: 6, onDemand: 3500, spot: 1500, savings: 3500 },
-    { account: 7, onDemand: 4000, spot: 1500, savings: 4000 },
-    { account: 8, onDemand: 3500, spot: 1500, savings: 3500 },
-    { account: 9, onDemand: 2500, spot: 1500, savings: 2500 },
-    { account: 10, onDemand: 3500, spot: 1500, savings: 3500 }
-  ];
-
-  // Sort spot data based on selected sort option
-  const getSortedSpotData = () => {
-    const data = [...baseSpotData];
+    // Chart specific colors
+    savings: '#10B981',      // Emerald green for savings
+    costs: '#EF4444',        // Red for costs/spends
+    efficiency: '#8B5CF6',   // Purple for efficiency
     
-    switch (spotSortBy) {
-      case 'Savings (Highest to Lowest)':
-        return data.sort((a, b) => b.savings - a.savings);
-      case 'Savings (Lowest to Highest)':
-        return data.sort((a, b) => a.savings - b.savings);
-      case 'On Demand (Highest to Lowest)':
-        return data.sort((a, b) => b.onDemand - a.onDemand);
-      case 'On Demand (Lowest to Highest)':
-        return data.sort((a, b) => a.onDemand - b.onDemand);
-      case 'On Spot (Highest to Lowest)':
-        return data.sort((a, b) => b.spot - a.spot);
-      case 'On Spot (Lowest to Highest)':
-        return data.sort((a, b) => a.spot - b.spot);
-      default:
-        return data;
+    // Background and UI colors
+    chartBackground: '#1E293B', // Slate 800
+    gridLines: '#475569',    // Slate 600
+    textPrimary: '#F1F5F9',  // Slate 100
+    textSecondary: '#CBD5E1', // Slate 300
+    
+    // Status colors
+    success: '#10B981',      // Emerald 500
+    warning: '#F59E0B',      // Amber 500
+    danger: '#EF4444',       // Red 500
+    info: '#3B82F6',         // Blue 500
+  };
+
+  // Mock data with updated structure
+  const trendsChartData = trendsData ? 
+    trendsData.quarters.map((quarter: string, index: number) => ({
+      quarter,
+      spends: Object.values(trendsData.data).reduce((sum: number, accountData: any) => sum + (accountData[index] || 0), 0),
+      savings: Object.values(trendsData.data).reduce((sum: number, accountData: any) => sum + ((accountData[index] || 0) * 0.8), 0)
+    })) : [];
+
+  const instanceBreakdownData = [
+    { name: 'Virtual Machines', value: 45, color: darkThemeColors.primary },
+    { name: 'Containers', value: 30, color: darkThemeColors.secondary },
+    { name: 'Serverless', value: 15, color: darkThemeColors.tertiary },
+    { name: 'Databases', value: 10, color: darkThemeColors.quaternary }
+  ];
+
+  const spotUtilizationData = spotData?.map((item: any) => ({
+    account: `Account ${item.account}`,
+    onDemand: item.onDemand,
+    spot: item.spot,
+    savings: item.savings
+  })) || [];
+
+  const toggleSavingsDetails = (accountIndex: number) => {
+    setShowSavingsDetails(prev => ({
+      ...prev,
+      [accountIndex]: !prev[accountIndex]
+    }));
+  };
+
+  // Custom tooltip component for dark theme
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="rounded-lg shadow-lg p-3 border" 
+             style={{ 
+               backgroundColor: '#1E293B', 
+               borderColor: '#475569',
+               color: darkThemeColors.textPrimary 
+             }}>
+          <p className="font-medium mb-2">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} style={{ color: entry.color }} className="text-sm">
+              {entry.name}: {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
+            </p>
+          ))}
+        </div>
+      );
     }
+    return null;
   };
 
-  // Sample application data for the attention view
-  const applicationData: ApplicationData[] = [
-    { cloudAccount: 'Cloud Account 1', applicationName: 'Temp_Core_01', computeUsage: 60, dbUsage: 70, storage: 80, diskUtilisation: 65, idleInstances: 12, spends: 3000, savings: 10, status: 'active' },
-    { cloudAccount: 'Cloud Account 1', applicationName: 'Temp_Core_01', computeUsage: 60, dbUsage: 70, storage: 80, diskUtilisation: 60, idleInstances: 8, spends: 3000, savings: 10, status: 'inactive' },
-    { cloudAccount: 'Cloud Account 2', applicationName: 'Temp_Core_01', computeUsage: 60, dbUsage: 70, storage: 80, diskUtilisation: 58, idleInstances: 5, spends: 3000, savings: 10, status: 'active' },
-    { cloudAccount: 'Cloud Account 3', applicationName: 'Temp_Core_01', computeUsage: 60, dbUsage: 70, storage: 80, diskUtilisation: 72, idleInstances: 15, spends: 3000, savings: 10, status: 'inactive' },
-    { cloudAccount: 'Cloud Account 2', applicationName: 'Temp_Core_01', computeUsage: 60, dbUsage: 70, storage: 80, diskUtilisation: 68, idleInstances: 9, spends: 3000, savings: 10, status: 'active' },
-    { cloudAccount: 'Cloud Account 1', applicationName: 'Temp_Core_01', computeUsage: 60, dbUsage: 70, storage: 80, diskUtilisation: 63, idleInstances: 7, spends: 3000, savings: 10, status: 'inactive' },
-  ];
-
-  const handleChartBarClick = (accountNumber: number) => {
-    setSelectedCloudAccount(accountNumber);
-    // Navigate to applications view
-    const event = new CustomEvent('navigateToApplications', { detail: { cloudAccount: accountNumber } });
-    window.dispatchEvent(event);
-  };
-
-  const handleBackToDashboard = () => {
-    setShowAttentionView(false);
-    setSelectedCloudAccount(null);
-  };
-
-  const sortOptions = [
-    'Efficiency (Highest to Lowest)',
-    'Efficiency (Lowest to Highest)',
-    'Spends (Highest to Lowest)',
-    'Spends (Lowest to Highest)',
-    'Savings (Highest to Lowest)',
-    'Savings (Lowest to Highest)',
-    'Potential Savings (Highest to Lowest)',
-    'Potential Savings (Lowest to Highest)'
-  ];
-
-  const maxValue = Math.max(...chartData.map(d => d.spendings + d.savings + d.potential));
-
-  // If showing attention view, render that instead
-  if (showAttentionView) {
+  if (dashboardLoading) {
     return (
-      <div className="min-h-screen bg-gray-100">
-        {/* Header Section */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            <button
-              onClick={handleBackToDashboard}
-              className="flex items-center text-gray-600 hover:text-gray-900"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Dashboard
-            </button>
-            
-            {/* Center - Search Bar */}
-            <div className="flex-1 max-w-md mx-8">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by Cloud account or Application..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Right side - Dropdowns */}
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <select
-                  value={selectedProvider}
-                  onChange={(e) => setSelectedProvider(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="All Providers">All Providers</option>
-                  <option value="AWS">AWS</option>
-                  <option value="Azure">Azure</option>
-                  <option value="GCP">GCP</option>
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              </div>
-
-              <div className="relative">
-                <select
-                  value={selectedQuarter}
-                  onChange={(e) => setSelectedQuarter(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="2025, Q1">2025, Q1</option>
-                  <option value="2024, Q4">2024, Q4</option>
-                  <option value="2024, Q3">2024, Q3</option>
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Attention View Content */}
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            {/* Title */}
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Attention</h2>
-
-            {/* Filter Tabs */}
-            <div className="flex space-x-8 mb-6 border-b border-gray-200">
-              {['Usage & Cost', 'Disk utilisation', 'Idle instances'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-                    activeTab === tab
-                      ? 'border-gray-900 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-              
-              {/* Filter Icon */}
-              <div className="ml-auto relative">
-                <button
-                  onClick={() => setShowAttentionFilterDropdown(!showAttentionFilterDropdown)}
-                  className="p-2 rounded hover:bg-gray-50"
-                  aria-label="Filter attention table"
-                >
-                  <Filter className="h-5 w-5 text-gray-500" />
-                </button>
-                {showAttentionFilterDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                    {getAttentionFilterOptions().map((opt) => (
-                      <button
-                        key={opt}
-                        onClick={() => { setAttentionFilter(opt); setShowAttentionFilterDropdown(false); }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg ${attentionFilter === opt ? 'text-blue-600' : 'text-gray-700'}`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Table */}
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Cloud Account</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Application name</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">
-                      <div className="flex items-center">
-                        Compute usage
-                        <ArrowUpDown className="ml-1 h-4 w-4 text-blue-500" />
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">
-                      <div className="flex items-center">
-                        DB usage
-                        <ArrowUpDown className="ml-1 h-4 w-4 text-gray-400" />
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">
-                      <div className="flex items-center">
-                        Storage
-                        <ArrowUpDown className="ml-1 h-4 w-4 text-gray-400" />
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">
-                      <div className="flex items-center">
-                        Disk utilisation
-                        <ArrowUpDown className="ml-1 h-4 w-4 text-gray-400" />
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">
-                      <div className="flex items-center">
-                        Idle instances
-                        <ArrowUpDown className="ml-1 h-4 w-4 text-gray-400" />
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">
-                      <div className="flex items-center">
-                        Spends
-                        <ArrowUpDown className="ml-1 h-4 w-4 text-gray-400" />
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">
-                      <div className="flex items-center">
-                        Savings
-                        <ArrowUpDown className="ml-1 h-4 w-4 text-gray-400" />
-                      </div>
-                    </th>
-                    <th className="w-8"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(() => {
-                    let rows = [...applicationData];
-                    // Apply contextual filter
-                    if (attentionFilter && attentionFilter !== 'All') {
-                      if (activeTab === 'Usage & Cost') {
-                        if (attentionFilter.startsWith('Cloud Account')) {
-                          rows = rows.filter((r) => r.cloudAccount === attentionFilter);
-                        }
-                      } else if (activeTab === 'Disk utilisation') {
-                        const threshold = parseInt(attentionFilter.replace(/[^0-9]/g, '')) || 0;
-                        rows = rows.filter((r) => r.diskUtilisation > threshold);
-                      } else if (activeTab === 'Idle instances') {
-                        const threshold = parseInt(attentionFilter.replace(/[^0-9]/g, '')) || 0;
-                        rows = rows.filter((r) => r.idleInstances > threshold);
-                      }
-                    }
-                    // Apply search term within Attention context
-                    const q = searchTerm.trim().toLowerCase();
-                    if (q) {
-                      rows = rows.filter((r) => [r.cloudAccount, r.applicationName].some((v) => v.toLowerCase().includes(q)));
-                    }
-                    return rows.map((app, index) => (
-                      <tr
-                        key={index}
-                        className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => {
-                          const event = new CustomEvent('navigateToApplications', { detail: { cloudAccount: app.cloudAccount } });
-                          window.dispatchEvent(event);
-                        }}
-                      >
-                        <td className="py-4 px-4 text-gray-900">{app.cloudAccount}</td>
-                        <td className="py-4 px-4 text-gray-900">{app.applicationName}</td>
-                        <td className="py-4 px-4 text-gray-900">{app.computeUsage}%</td>
-                        <td className="py-4 px-4 text-gray-900">{app.dbUsage}%</td>
-                        <td className="py-4 px-4 text-gray-900">{app.storage}%</td>
-                        <td className="py-4 px-4 text-gray-900">{app.diskUtilisation}%</td>
-                        <td className="py-4 px-4 text-gray-900">{app.idleInstances}</td>
-                        <td className="py-4 px-4 text-gray-900">${app.spends}</td>
-                        <td className="py-4 px-4 text-gray-900">${app.savings}</td>
-                        <td className="py-4 px-4">
-                          <ChevronRight className="h-4 w-4 text-gray-400" />
-                        </td>
-                      </tr>
-                    ));
-                  })()}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      <div className="flex items-center justify-center h-full">
+        <div className="text-slate-400">Loading dashboard...</div>
       </div>
     );
   }
 
-  const handleAlertAccountClick = (accountName: string) => {
-    // Map account name to account ID for navigation
-    const accountMap: { [key: string]: string } = {
-      'Cloud Account 1': 'ca-123',
-      'Cloud Account 2': 'ca-124', 
-      'Cloud Account 3': 'ca-125',
-      'Cloud Account 4': 'ca-126'
-    };
-    
-    const accountId = accountMap[accountName];
-    if (accountId) {
-      onViewAccountDetails(accountId);
-    }
-  };
-
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0f172a' }}>
-      {/* Header Section */}
-      <div className="px-6 py-4" style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          {/* Left side - could add breadcrumb or title */}
-          <div></div>
-          
-          {/* Center - Search Bar */}
-          <div className="flex-1 max-w-md mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search by Cloud account or Application..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg text-white placeholder-slate-400"
-                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
-              />
+    <div className="p-6 space-y-6 overflow-y-auto h-full" style={{ backgroundColor: '#0F172A' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Cloud Cost Dashboard</h1>
+          <p className="text-slate-400 mt-1">Monitor and optimize your cloud infrastructure costs</p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="px-4 py-2 rounded-lg text-white"
+            style={{ backgroundColor: '#1E293B', border: '1px solid #475569' }}
+          >
+            <option value="2025, Q1">2025, Q1</option>
+            <option value="2024, Q4">2024, Q4</option>
+            <option value="2024, Q3">2024, Q3</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <Server className="h-8 w-8" style={{ color: darkThemeColors.primary }} />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-slate-400">Cloud Accounts</p>
+              <p className="text-2xl font-semibold text-white">{dashboardData?.totalCloudAccounts || 0}</p>
             </div>
           </div>
+        </div>
 
-          {/* Right side - Dropdowns */}
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <select
-                value={selectedProvider}
-                onChange={(e) => setSelectedProvider(e.target.value)}
-                className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
-                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
-              >
-                <option value="All Providers">All Providers</option>
-                <option value="AWS">AWS</option>
-                <option value="Azure">Azure</option>
-                <option value="GCP">GCP</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <Activity className="h-8 w-8" style={{ color: darkThemeColors.secondary }} />
             </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-slate-400">Virtual Machines</p>
+              <p className="text-2xl font-semibold text-white">{dashboardData?.totalVirtualMachines?.toLocaleString() || 0}</p>
+            </div>
+          </div>
+        </div>
 
-            <div className="relative">
-              <select
-                value={selectedQuarter}
-                onChange={(e) => setSelectedQuarter(e.target.value)}
-                className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
-                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
-              >
-                <option value="2025, Q1">2025, Q1</option>
-                <option value="2024, Q4">2024, Q4</option>
-                <option value="2024, Q3">2024, Q3</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <DollarSign className="h-8 w-8" style={{ color: darkThemeColors.costs }} />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-slate-400">Monthly Spend</p>
+              <p className="text-2xl font-semibold text-white">${dashboardData?.monthlySpend?.toLocaleString() || 0}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <TrendingUp className="h-8 w-8" style={{ color: darkThemeColors.savings }} />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-slate-400">Potential Savings</p>
+              <p className="text-2xl font-semibold text-white">${dashboardData?.potentialSavings?.toLocaleString() || 0}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Key Metrics Cards */}
-        <div className="grid grid-cols-8 gap-4 mb-8">
-          {dashboardLoading ? (
-            <div className="col-span-8 text-center text-slate-400">Loading dashboard data...</div>
-          ) : (
-            <>
-              {/* Total Cloud Accounts */}
-              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                <div className="text-sm font-medium text-slate-400 mb-2">Total Cloud Accounts</div>
-                <div className="text-2xl font-bold text-white mb-1">{dashboardData?.totalCloudAccounts || 0}</div>
-                <div className="text-xs text-slate-400">Efficiency {dashboardData?.efficiency || 0}%</div>
-              </div>
-
-              {/* Virtual Machines */}
-              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                <div className="text-sm font-medium text-slate-400 mb-2">Virtual Machines</div>
-                <div className="text-2xl font-bold text-white">{dashboardData?.totalVirtualMachines?.toLocaleString() || 0}</div>
-              </div>
-
-              {/* Application Instances */}
-              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                <div className="text-sm font-medium text-slate-400 mb-2">Application Instances</div>
-                <div className="text-2xl font-bold text-white">{dashboardData?.totalApplicationInstances?.toLocaleString() || 0}</div>
-              </div>
-
-              {/* Databases */}
-              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                <div className="text-sm font-medium text-slate-400 mb-2">Databases</div>
-                <div className="text-2xl font-bold text-white">{dashboardData?.totalDatabases?.toLocaleString() || 0}</div>
-              </div>
-
-              {/* Storage (GiB) */}
-              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                <div className="text-sm font-medium text-slate-400 mb-2">Storage (GiB)</div>
-                <div className="text-2xl font-bold text-white">{dashboardData?.totalStorage || 0}</div>
-              </div>
-
-              {/* Monthly Spend */}
-              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                <div className="text-sm font-medium text-slate-400 mb-2">Monthly Spend</div>
-                <div className="text-2xl font-bold text-white">${(dashboardData?.monthlySpend / 1000 || 0)}K</div>
-              </div>
-
-              {/* Monthly Savings */}
-              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                <div className="text-sm font-medium text-slate-400 mb-2">Monthly Savings</div>
-                <div className="text-2xl font-bold text-white">${(dashboardData?.monthlySavings / 1000 || 0)}K</div>
-              </div>
-
-              {/* Potential Savings */}
-              <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                <div className="text-sm font-medium text-slate-400 mb-2">Potential Savings</div>
-                <div className="text-2xl font-bold text-white">${(dashboardData?.potentialSavings / 1000 || 0)}K</div>
-              </div>
-            </>
-          )}
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Spends and Savings Trends Chart */}
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+          <h3 className="text-lg font-semibold text-white mb-4">Spends & Savings Trends</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={trendsChartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={darkThemeColors.gridLines} />
+              <XAxis 
+                dataKey="quarter" 
+                stroke={darkThemeColors.textSecondary}
+                fontSize={12}
+              />
+              <YAxis 
+                stroke={darkThemeColors.textSecondary}
+                fontSize={12}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Line 
+                type="monotone" 
+                dataKey="spends" 
+                stroke={darkThemeColors.costs}
+                strokeWidth={3}
+                dot={{ fill: darkThemeColors.costs, strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: darkThemeColors.costs, strokeWidth: 2 }}
+                name="Spends"
+              />
+              <Line 
+                type="monotone" 
+                dataKey="savings" 
+                stroke={darkThemeColors.savings}
+                strokeWidth={3}
+                dot={{ fill: darkThemeColors.savings, strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: darkThemeColors.savings, strokeWidth: 2 }}
+                name="Savings"
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
-          {/* Alerts Section - Full Width */}
-          <div className="col-span-3 rounded-lg shadow-sm p-6 mb-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center">
-                <h3 className="text-lg font-semibold text-white mr-2">Alerts</h3>
-                <div className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  2
-                </div>
-              </div>
-              <button 
-                onClick={() => setShowAllAlerts(!showAllAlerts)}
-                className="text-blue-400 hover:text-blue-300 text-sm font-medium"
+        {/* Instance Breakdown Pie Chart */}
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+          <h3 className="text-lg font-semibold text-white mb-4">Instance Breakdown</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={instanceBreakdownData}
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                labelLine={false}
+                fontSize={12}
               >
-                {showAllAlerts ? 'Show less' : 'View all'}
-                <ChevronRight className="inline h-4 w-4 ml-1" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
-                <div className="flex-shrink-0">
-                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-medium text-red-300">High Spend Alert</h4>
-                  <p className="text-sm text-red-200 mt-1">
-                    Cloud Account 1 has the highest spend of $2.4M this quarter
-                  </p>
-                  <button 
-                    onClick={onViewApplications}
-                    className="text-xs text-red-400 hover:text-red-300 underline mt-1 block"
-                  >
-                    View applications →
-                  </button>
-                  <p className="text-xs text-slate-400 mt-1">1 hour ago</p>
-                </div>
+                {instanceBreakdownData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} stroke={darkThemeColors.chartBackground} strokeWidth={2} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {instanceBreakdownData.map((item, index) => (
+              <div key={index} className="flex items-center">
+                <div 
+                  className="w-3 h-3 rounded-full mr-2" 
+                  style={{ backgroundColor: item.color }}
+                ></div>
+                <span className="text-sm text-slate-300">{item.name}</span>
               </div>
-              
-              <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
-                <div className="flex-shrink-0">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-medium text-blue-300">New Asset Created</h4>
-                  <p className="text-sm text-blue-200 mt-1">
-                    New EC2 instance (i-0a1b2c3d4e5f6789) created in Cloud Account 2
-                  </p>
-                  <button 
-                    onClick={() => setSelectedAccount('ca-456')}
-                    className="text-xs text-blue-400 hover:text-blue-300 underline mt-1 block"
-                  >
-                    View applications →
-                  </button>
-                  <p className="text-xs text-slate-400 mt-1">30 minutes ago</p>
-                </div>
-              </div>
-              
-              {showAllAlerts && (
-                <>
-                  <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
-                    <div className="flex-shrink-0">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-orange-300">Resource Imbalance</h4>
-                      <p className="text-sm text-orange-200 mt-1">
-                        Cloud Account 1 has 3x more resources than other accounts
-                      </p>
-                      <button 
-                        onClick={() => setSelectedAccount('ca-123')}
-                        className="text-xs text-orange-400 hover:text-orange-300 underline mt-1 block"
-                      >
-                        View applications →
-                      </button>
-                      <p className="text-xs text-slate-400 mt-1">2 hours ago</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
-                    <div className="flex-shrink-0">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-red-300">Compute Outage</h4>
-                      <p className="text-sm text-red-200 mt-1">
-                        EC2 instance i-de0b6b3a7640000 in us-east-1 is unresponsive
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">15 minutes ago</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-3 p-4 rounded-lg" style={{ backgroundColor: '#374151', border: '1px solid #4b5563' }}>
-                    <div className="flex-shrink-0">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-red-300">Disk Outage</h4>
-                      <p className="text-sm text-red-200 mt-1">
-                        EBS volume vol-6124fee993bc0000 experiencing I/O errors
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">5 minutes ago</p>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Spends & Savings Chart - Only show when no search term */}
-        {!searchTerm.trim() && (
-        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-white">Spends & Savings</h3>
-            <div className="relative">
+      {/* Spot Utilization Chart */}
+      <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white">Spot Instance Utilization & Savings</h3>
+          <button
+            onClick={onViewApplications}
+            className="text-sm px-4 py-2 rounded-lg transition-colors"
+            style={{ 
+              backgroundColor: '#3B82F6', 
+              color: 'white',
+            }}
+          >
+            View Details
+          </button>
+        </div>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={spotUtilizationData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={darkThemeColors.gridLines} />
+            <XAxis 
+              dataKey="account" 
+              stroke={darkThemeColors.textSecondary}
+              fontSize={12}
+            />
+            <YAxis 
+              stroke={darkThemeColors.textSecondary}
+              fontSize={12}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Bar 
+              dataKey="onDemand" 
+              fill={darkThemeColors.costs}
+              name="On-Demand Cost"
+              radius={[2, 2, 0, 0]}
+            />
+            <Bar 
+              dataKey="spot" 
+              fill={darkThemeColors.primary}
+              name="Spot Cost"
+              radius={[2, 2, 0, 0]}
+            />
+            <Bar 
+              dataKey="savings" 
+              fill={darkThemeColors.savings}
+              name="Savings"
+              radius={[2, 2, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+        
+        {/* Expandable savings details */}
+        <div className="mt-6 space-y-2">
+          {spotUtilizationData.slice(0, 3).map((item: any, index: number) => (
+            <div key={index} className="border rounded-lg" style={{ borderColor: '#334155' }}>
               <button
-                onClick={() => setShowSortDropdown(!showSortDropdown)}
-                className="p-2 rounded-lg hover:opacity-80"
-                style={{ border: '1px solid #475569' }}
-                aria-label="Sort"
+                onClick={() => toggleSavingsDetails(index)}
+                className="w-full px-4 py-3 flex items-center justify-between text-left hover:opacity-80"
+                style={{ backgroundColor: '#334155' }}
               >
-                <BarChart3 className="h-5 w-5 text-slate-400" />
-              </button>
-              {showSortDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-lg shadow-lg z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                  {sortOptions.map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => { setSortBy(option); setShowSortDropdown(false); }}
-                      className="w-full text-left px-4 py-2 text-sm text-white hover:opacity-80 first:rounded-t-lg last:rounded-b-lg"
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Chart Container */}
-          <div className="relative">
-            <div className="flex items-end justify-between h-64 mb-4 px-4">
-              {filteredChartData.map((data, index) => {
-                const chartHeight = 200; // px - keep columns within chart area
-                // Scale each stacked segment against the maximum TOTAL so stacks never exceed chartHeight
-                const spendingHeight = (data.spendings / maxValue) * chartHeight;
-                const savingsHeight = (data.savings / maxValue) * chartHeight;
-                const potentialHeight = (data.potential / maxValue) * chartHeight;
-                const efficiencyHeight = (data.efficiency / 100) * chartHeight;
-
-                return (
-                  <div
-                    key={data.account}
-                    className="relative flex items-end space-x-2 group cursor-pointer"
-                    style={{ width: `${100 / filteredChartData.length}%`, justifyContent: 'center' }}
-                    onMouseEnter={() => setHoveredAccount(data.account)}
-                    onMouseLeave={() => setHoveredAccount(null)}
-                    onClick={() => handleChartBarClick(data.account)}
-                  >
-                    {/* Tooltip */}
-                    {hoveredAccount === data.account && (
-                      <div className="absolute -top-32 left-1/2 transform -translate-x-1/2 shadow-lg rounded-lg px-4 py-3 text-sm whitespace-nowrap z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                        <div className="font-bold text-white mb-2">Cloud Account {data.account}</div>
-                        <div className="text-slate-300 mb-1">Spends - ${data.spendings}k</div>
-                        <div className="text-slate-300 mb-1">Savings - ${data.savings}k</div>
-                        <div className="text-slate-300 mb-1">Potential savings - ${data.potential}k</div>
-                        <div className="text-slate-300">Efficiency - {data.efficiency}%</div>
-                      </div>
-                    )}
-
-                    {/* Chart Bars Container */}
-                    <div className="flex items-end space-x-2 justify-center">
-                      {/* Main Stacked Bar */}
-                      <div className="relative flex flex-col items-center">
-                        <div className="w-8 relative" style={{ height: `${200}px` }}>
-                          {/* Spendings (Bottom - Red) */}
-                          <div
-                            className="absolute bottom-0 w-full bg-red-300 transition-all duration-200"
-                            style={{ height: `${Math.max(spendingHeight, 8)}px` }}
-                          ></div>
-                          {/* Savings (Middle - Blue) */}
-                          <div
-                            className="absolute w-full bg-blue-300 transition-all duration-200"
-                            style={{ 
-                              height: `${Math.max(savingsHeight, 8)}px`,
-                              bottom: `${Math.max(spendingHeight, 8)}px`
-                            }}
-                          ></div>
-                          {/* Potential Savings (Top - Green) */}
-                          <div
-                            className="absolute w-full bg-green-400 transition-all duration-200"
-                            style={{ 
-                              height: `${Math.max(potentialHeight, 8)}px`,
-                              bottom: `${Math.max(spendingHeight + savingsHeight, 16)}px`
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      {/* Efficiency Bar (Right - Grey) */}
-                      <div className="relative flex flex-col items-center">
-                        <div
-                          className="w-6 bg-gray-400 transition-all duration-200"
-                          style={{ height: `${Math.max(efficiencyHeight, 8)}px` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* X-axis Labels */}
-            <div className="flex justify-between px-4 mb-4">
-              {filteredChartData.map((data, index) => (
-                <div key={data.account} className="text-xs text-slate-400 text-center" style={{ width: `${100 / filteredChartData.length}%` }}>
-                  Cloud<br />Account {data.account}
-                </div>
-              ))}
-            </div>
-
-            {/* Legend */}
-            <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-red-300 rounded-full"></div>
-                <span className="text-slate-400">Spendings</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-300 rounded-full"></div>
-                <span className="text-slate-400">Savings</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="text-slate-400">Potential Savings</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                <span className="text-slate-400">Efficiency</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        )}
-
-        {/* Two-column section replicating reference (Instance breakdown + On Spot savings) - Only show when no search term */}
-        {!searchTerm.trim() && (
-        <div className="grid grid-cols-3 gap-6 mt-6">
-          {/* Left: Instance breakdown donut */}
-          <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <h3 className="text-lg font-semibold text-white mb-6">Instance breakdown</h3>
-            <div className="flex items-center justify-center">
-              {/* Donut Chart */}
-              <div className="relative" style={{ width: 180, height: 180 }}>
-                <svg width="180" height="180" className="transform -rotate-90">
-                  {/* On Spot - 70% */}
-                  <circle
-                    cx="90"
-                    cy="90"
-                    r="70"
-                    fill="none"
-                    stroke="#00BCD4"
-                    strokeWidth="28"
-                    strokeDasharray={`${70 * 4.4} ${30 * 4.4}`}
-                    strokeDashoffset="0"
-                  />
-                  {/* On Demand - 30% */}
-                  <circle
-                    cx="90"
-                    cy="90"
-                    r="70"
-                    fill="none"
-                    stroke="#4CAF50"
-                    strokeWidth="28"
-                    strokeDasharray={`${30 * 4.4} ${70 * 4.4}`}
-                    strokeDashoffset={`-${70 * 4.4}`}
-                  />
-                </svg>
-                {/* Center text */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-white">70%</span>
-                </div>
-              </div>
-
-              {/* Legend */}
-              <div className="ml-8 space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CAF50' }}></div>
-                  <span className="text-slate-400 text-sm">On Demand</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#00BCD4' }}></div>
-                  <span className="text-slate-400 text-sm">On Spot</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: On Spot savings bars */}
-          <div className="col-span-2 rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-white">Spot Utilization Savings</h3>
-              <div className="relative">
-                <button
-                  onClick={() => setShowSpotSortDropdown(!showSpotSortDropdown)}
-                  className="p-2 rounded-lg hover:opacity-80"
-                  style={{ border: '1px solid #475569' }}
-                  aria-label="Sort On Spot"
-                >
-                  <BarChart3 className="h-5 w-5 text-slate-400" />
-                </button>
-                {showSpotSortDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-72 rounded-lg shadow-lg z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                    {[
-                      'Savings (Highest to Lowest)',
-                      'Savings (Lowest to Highest)',
-                      'On Demand (Highest to Lowest)',
-                      'On Demand (Lowest to Highest)',
-                      'On Spot (Highest to Lowest)',
-                      'On Spot (Lowest to Highest)'
-                    ].map((option) => (
-                      <button
-                        key={option}
-                        onClick={() => { setSpotSortBy(option); setShowSpotSortDropdown(false); }}
-                        className="w-full text-left px-4 py-2 text-sm text-white hover:opacity-80 first:rounded-t-lg last:rounded-b-lg"
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </div>
+                <span className="text-white font-medium">{item.account} Savings Details</span>
+                {showSavingsDetails[index] ? (
+                  <EyeOff className="h-4 w-4 text-slate-400" />
+                ) : (
+                  <Eye className="h-4 w-4 text-slate-400" />
                 )}
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="flex items-end justify-between h-48 mb-1 px-4">
-                {(() => {
-                  const spotData = getSortedSpotData().filter(d => accountMatchesSearch(d.account));
-                  return spotData.map((data) => (
-                   <div
-                     key={data.account}
-                     className="relative flex items-end space-x-1 group cursor-pointer"
-                     onMouseEnter={() => setHoveredSpotAccount(data.account)}
-                     onMouseLeave={() => setHoveredSpotAccount(null)}
-                     onClick={() => { setSelectedSpotAccountForDetails(data.account); setShowSpotDetails(true); }}
-                   >
-                     {hoveredSpotAccount === data.account && (
-                       <div className="absolute -top-28 left-1/2 transform -translate-x-1/2 shadow-lg rounded-lg px-3 py-2 text-xs z-10 whitespace-nowrap" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                         <div className="font-bold text-white mb-1">Cloud Account {data.account}</div>
-                         <div className="text-slate-300">On Spot Savings - ${data.savings}k</div>
-                         <div className="text-slate-300">On Spot cost - ${data.spot}k</div>
-                         <div className="text-slate-300">On Demand cost - ${data.onDemand}k</div>
-                         <div className="text-slate-300">Savings - {Math.round((data.savings / data.onDemand) * 100)}%</div>
-                       </div>
-                     )}
-
-                     {/* On Demand */}
-                     <div 
-                       className="w-4 bg-[#4CAF50] transition-all duration-300 hover:opacity-80"
-                       style={{ height: `${Math.max((data.onDemand / 5000) * 180, 8)}px` }}
-                     ></div>
-                     {/* Spot */}
-                     <div 
-                       className="w-4 bg-[#00BCD4] transition-all duration-300 hover:opacity-80"
-                       style={{ height: `${Math.max((data.spot / 5000) * 180, 8)}px` }}
-                     ></div>
-                     {/* Savings on Spot */}
-                     <div 
-                       className="w-4 bg-[#f28b82] transition-all duration-300 hover:opacity-80"
-                       style={{ height: `${Math.max((data.savings / 5000) * 180, 8)}px` }}
-                     ></div>
-                   </div>
-                  ));
-                })()}
-              </div>
-
-              {/* X-axis labels */}
-              <div className="flex justify-between px-4 mt-3">
-                {(() => {
-                  const spotData = getSortedSpotData().filter(d => accountMatchesSearch(d.account));
-                  return spotData.map((d) => (
-                    <div key={d.account} className="text-xs text-slate-400 text-center flex-1">
-                      Cloud<br />Account {d.account}
-                    </div>
-                  ));
-                })()}
-              </div>
-
-              {/* Legend */}
-              <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-[#4CAF50] rounded-full"></div>
-                  <span className="text-slate-400">On Demand</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-[#00BCD4] rounded-full"></div>
-                  <span className="text-slate-400">Spot</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-[#f28b82] rounded-full"></div>
-                  <span className="text-slate-400">Savings on Spot</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        )}
-
-        {/* Spot Utilization modal */}
-        {showSpotDetails && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start justify-center z-50">
-            <div className="rounded-lg shadow-xl w-[1100px] mt-16" style={{ backgroundColor: '#1e293b', border: '2px solid #3b82f6' }}>
-              <div className="flex items-center justify-between p-4" style={{ borderBottom: '1px solid #334155' }}>
-                <h3 className="text-lg font-semibold text-white">Spot Utilization Savings</h3>
-                <div className="flex items-center space-x-2">
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowSavingsSortDropdown(!showSavingsSortDropdown)}
-                      className="p-2 hover:bg-gray-100 rounded"
-                      aria-label="Sort savings table"
-                    >
-                      <Filter className="h-5 w-5 text-gray-600" />
-                    </button>
-                    {showSavingsSortDropdown && (
-                      <div className="absolute right-0 top-full mt-2 w-80 rounded-lg shadow-lg z-10" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                        {[
-                          'On Demand cost (Highest to Lowest)',
-                          'On Demand cost (Lowest to Highest)',
-                          'Savings with Spot (Highest to Lowest)',
-                          'Savings with Spot (Lowest to Highest)',
-                          'Savings without Spot (Highest to Lowest)',
-                          'Savings without Spot (Lowest to Highest)',
-                          '%age Savings (Highest to Lowest)',
-                          '%age Savings (Lowest to Highest)'
-                        ].map((option) => (
-                          <button
-                            key={option}
-                            onClick={() => { setSavingsSortBy(option); setShowSavingsSortDropdown(false); }}
-                            className="w-full text-left px-4 py-2 text-sm text-white hover:opacity-80 first:rounded-t-lg last:rounded-b-lg"
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <button onClick={() => setShowSpotDetails(false)} className="p-2 hover:opacity-80 rounded">
-                    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                  </button>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid #334155' }} className="text-white">
-                      <th className="text-left py-3 px-6 font-medium">Cloud Account</th>
-                      <th className="text-left py-3 px-6 font-medium">Application name</th>
-                      <th className="text-left py-3 px-6 font-medium">
-                        <div className="inline-flex items-center">On Demand cost <ArrowUpDown className="ml-1 h-4 w-4" /></div>
-                      </th>
-                      <th className="text-left py-3 px-6 font-medium">
-                        <div className="inline-flex items-center">Savings with Spot <ArrowUpDown className="ml-1 h-4 w-4" /></div>
-                      </th>
-                      <th className="text-left py-3 px-6 font-medium">
-                        <div className="inline-flex items-center">Savings without Spot <ArrowUpDown className="ml-1 h-4 w-4" /></div>
-                      </th>
-                      <th className="text-left py-3 px-6 font-medium">
-                        <div className="inline-flex items-center">%age Savings <ArrowUpDown className="ml-1 h-4 w-4" /></div>
-                      </th>
-                      <th className="w-10"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(() => {
-                      const q = searchTerm.trim().toLowerCase();
-                      const filteredRows = applicationData.filter(a => {
-                        if (!q) return true;
-                        return [a.cloudAccount, a.applicationName, `${a.computeUsage}%`, `${a.dbUsage}%`, `${a.storage}%`, `${a.diskUtilisation}%`, `${a.idleInstances}`, `$${a.spends}`, `$${a.savings}`]
-                          .some(v => String(v).toLowerCase().includes(q));
-                      });
-                      const rows: SavingsRow[] = Array.from({ length: 6 }).map(() => ({
-                        cloudAccount: `Cloud Account ${selectedSpotAccountForDetails ?? 1}`,
-                        applicationName: 'Temp_Core_01',
-                        onDemand: 6000,
-                        withSpot: 3000,
-                        withoutSpot: 1000,
-                        percent: 50,
-                      }));
-                      const data = [...rows];
-                      switch (savingsSortBy) {
-                        case 'On Demand cost (Highest to Lowest)':
-                          data.sort((a, b) => b.onDemand - a.onDemand); break;
-                        case 'On Demand cost (Lowest to Highest)':
-                          data.sort((a, b) => a.onDemand - b.onDemand); break;
-                        case 'Savings with Spot (Highest to Lowest)':
-                          data.sort((a, b) => b.withSpot - a.withSpot); break;
-                        case 'Savings with Spot (Lowest to Highest)':
-                          data.sort((a, b) => a.withSpot - b.withSpot); break;
-                        case 'Savings without Spot (Highest to Lowest)':
-                          data.sort((a, b) => b.withoutSpot - a.withoutSpot); break;
-                        case 'Savings without Spot (Lowest to Highest)':
-                          data.sort((a, b) => a.withoutSpot - b.withoutSpot); break;
-                        case '%age Savings (Highest to Lowest)':
-                          data.sort((a, b) => b.percent - a.percent); break;
-                        case '%age Savings (Lowest to Highest)':
-                          data.sort((a, b) => a.percent - b.percent); break;
-                        default:
-                          break;
-                      }
-                      return filteredRows.slice(0, data.length).map((_, idx) => {
-                        const row = data[idx];
-                        return (
-                          <tr key={idx} style={{ borderBottom: '1px solid #334155' }} className={idx % 2 === 0 ? '' : 'bg-slate-800/50'}>
-                            <td className="py-4 px-6 text-white">{row.cloudAccount}</td>
-                            <td className="py-4 px-6 text-white">{row.applicationName}</td>
-                            <td className="py-4 px-6 text-white">${row.onDemand}</td>
-                            <td className="py-4 px-6 text-white">${row.withSpot}</td>
-                            <td className="py-4 px-6 text-white">${row.withoutSpot}</td>
-                            <td className="py-4 px-6 text-white">{row.percent}%</td>
-                            <td className="py-4 px-4 text-slate-400"><ChevronRight className="h-4 w-4" /></td>
-                          </tr>
-                        );
-                      });
-                    })()}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Compare cost across Quarters - Only show when no search term */}
-        {!searchTerm.trim() && (
-        <div className="rounded-lg shadow-sm p-6 mt-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">Compare cost across Quarters</h3>
-            <div className="relative w-64">
-              <button
-                className="w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm text-white hover:opacity-80"
-                style={{ border: '1px solid #475569' }}
-                onClick={() => setShowCloudPicker(!showCloudPicker)}
-              >
-                <span>Selected: {selectedTrendClouds.length} clouds</span>
-                <ChevronDown className="h-4 w-4 text-slate-400" />
               </button>
-              {showCloudPicker && (
-                <div className="absolute right-0 top-full mt-2 w-64 rounded-lg shadow-lg z-10 p-2" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
-                  <div className="flex items-center justify-between px-2 py-1">
-                    <button className="text-xs text-blue-400 hover:underline" onClick={() => setSelectedTrendClouds(Array.from({ length: 10 }, (_, i) => i + 1))}>Select all</button>
-                    <button className="text-xs text-slate-400 hover:underline" onClick={() => setSelectedTrendClouds([])}>Clear</button>
+              {showSavingsDetails[index] && (
+                <div className="p-4 space-y-2" style={{ backgroundColor: '#1E293B' }}>
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">On-Demand Cost:</span>
+                    <span className="text-white font-semibold">${item.onDemand?.toLocaleString()}</span>
                   </div>
-                  <div className="max-h-48 overflow-y-auto mt-1 space-y-1">
-                    {Array.from({ length: 10 }, (_, idx) => idx + 1).map((acc) => (
-                      <label key={acc} className="flex items-center space-x-2 px-2 py-1 text-sm hover:opacity-80 rounded cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selectedTrendClouds.includes(acc)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedTrendClouds([...selectedTrendClouds, acc]);
-                            } else {
-                              setSelectedTrendClouds(selectedTrendClouds.filter(c => c !== acc));
-                            }
-                          }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-white">Cloud Account {acc}</span>
-                      </label>
-                    ))}
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Spot Cost:</span>
+                    <span className="text-white font-semibold">${item.spot?.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Total Savings:</span>
+                    <span className="font-semibold" style={{ color: darkThemeColors.savings }}>
+                      ${item.savings?.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-300">Savings Percentage:</span>
+                    <span className="font-semibold" style={{ color: darkThemeColors.savings }}>
+                      {item.onDemand > 0 ? ((item.savings / item.onDemand) * 100).toFixed(1) : 0}%
+                    </span>
                   </div>
                 </div>
               )}
             </div>
-          </div>
+          ))}
+        </div>
+      </div>
 
-          {/* Metric Selector */}
-          <div className="flex space-x-4 mt-6 mb-4">
-            {(['Spends', 'Savings', 'Potential savings', 'Efficiency'] as const).map((metric) => (
+      {/* Alerts and Recommendations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Alerts */}
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">Recent Alerts</h3>
+            <Bell className="h-5 w-5 text-slate-400" />
+          </div>
+          <div className="space-y-3">
+            {alertsData?.slice(0, 3).map((alert: any) => (
+              <div key={alert.id} className="p-3 rounded-lg border-l-4" 
+                   style={{ 
+                     backgroundColor: '#334155',
+                     borderLeftColor: alert.severity === 'critical' ? darkThemeColors.danger : darkThemeColors.warning
+                   }}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">{alert.title}</p>
+                    <p className="text-xs text-slate-300 mt-1">{alert.message}</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {new Date(alert.timestamp).toLocaleString()}
+                    </p>
+                  </div>
+                  <AlertTriangle 
+                    className="h-4 w-4 ml-2" 
+                    style={{ color: alert.severity === 'critical' ? darkThemeColors.danger : darkThemeColors.warning }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recommendations */}
+        <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">Cost Optimization</h3>
+            <TrendingUp className="h-5 w-5" style={{ color: darkThemeColors.savings }} />
+          </div>
+          <div className="space-y-3">
+            {recommendationsData?.map((rec: any) => (
+              <div key={rec.id} className="p-3 rounded-lg" style={{ backgroundColor: '#334155' }}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">{rec.title}</p>
+                    <p className="text-xs text-slate-300 mt-1">{rec.description}</p>
+                    <div className="flex items-center mt-2 space-x-4">
+                      <span className="text-xs text-slate-400">
+                        {rec.affectedResources} resources
+                      </span>
+                      {rec.potentialSavings !== '$0' && (
+                        <span className="text-xs font-medium" style={{ color: darkThemeColors.savings }}>
+                          Save {rec.potentialSavings}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded ${
+                    rec.priority === 'high' ? 'bg-red-900 text-red-200' :
+                    rec.priority === 'medium' ? 'bg-yellow-900 text-yellow-200' :
+                    'bg-blue-900 text-blue-200'
+                  }`}>
+                    {rec.priority}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Attention Required Section */}
+      <div className="rounded-lg shadow-sm p-6" style={{ backgroundColor: '#1E293B', border: '1px solid #334155' }}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white">Attention Required</h3>
+          <div className="flex space-x-2">
+            {(['usage-cost', 'disk-utilisation', 'idle-instances'] as const).map((category) => (
               <button
-                key={metric}
-                onClick={() => setSelectedTrendMetric(metric)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedTrendMetric === metric
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-3 py-1 rounded-lg text-sm transition-colors ${
+                  selectedCategory === category 
+                    ? 'text-white' 
+                    : 'text-slate-400 hover:text-white'
                 }`}
+                style={{ 
+                  backgroundColor: selectedCategory === category ? '#3B82F6' : '#334155'
+                }}
               >
-                {metric}
+                {category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </button>
             ))}
           </div>
-
-          {/* Heatmap */}
-          <div className="relative mt-6">
-            <div className="overflow-x-auto">
-              <div className="min-w-full">
-                {/* Quarter headers */}
-                <div className="flex mb-2">
-                  <div className="w-32"></div>
-                  {trendQuarters.map((quarter) => (
-                    <div key={quarter} className="flex-1 text-xs text-gray-600 text-center font-medium px-1">
-                      {quarter}
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Heatmap rows */}
-                {selectedTrendClouds.map((account) => {
-                  const data = trendData[selectedTrendMetric][account];
-                  const maxVal = selectedTrendMetric === 'Efficiency' ? 100 : 800;
-                  const minVal = selectedTrendMetric === 'Efficiency' ? 0 : 0;
-                  
-                  return (
-                    <div key={account} className="flex items-center mb-1">
-                      <div className="w-32 text-sm text-white font-medium pr-4">
-                        Cloud Account {account}
-                      </div>
-                      {data.map((value, idx) => {
-                        const intensity = (value - minVal) / (maxVal - minVal);
-                        const opacity = Math.max(0.1, intensity);
-                        const bgColor = selectedTrendMetric === 'Efficiency' 
-                          ? `rgba(34, 197, 94, ${opacity})` // Green for efficiency
-                          : `rgba(59, 130, 246, ${opacity})`; // Blue for costs
-                        
-                        return (
-                          <div
-                            key={idx}
-                            className="flex-1 h-8 mx-1 rounded flex items-center justify-center text-xs font-medium cursor-pointer transition-all hover:scale-105"
-                            style={{ backgroundColor: bgColor }}
-                            onMouseEnter={() => setHoveredTrendPoint({ account, quarterIdx: idx })}
-                            onMouseLeave={() => setHoveredTrendPoint(null)}
-                          >
-                            {value}{selectedTrendMetric === 'Efficiency' ? '%' : 'k'}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Tooltip */}
-            {hoveredTrendPoint && (
-              <div className="absolute shadow-lg rounded-lg px-3 py-2 text-xs z-10 pointer-events-none"
-                   style={{ 
-                     backgroundColor: '#1e293b',
-                     border: '1px solid #334155',
-                     left: `${200 + (hoveredTrendPoint.quarterIdx * 60)}px`,
-                     top: `${20 + (selectedTrendClouds.indexOf(hoveredTrendPoint.account) * 36)}px`
-                   }}>
-                <div className="font-bold text-white mb-1">Cloud Account {hoveredTrendPoint.account}</div>
-                <div className="text-slate-400">{trendQuarters[hoveredTrendPoint.quarterIdx]}</div>
-                <div className="text-slate-400">
-                  {selectedTrendMetric}: {trendData[selectedTrendMetric][hoveredTrendPoint.account][hoveredTrendPoint.quarterIdx]}
-                  {selectedTrendMetric === 'Efficiency' ? '%' : 'k'}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Legend */}
-          <div className="flex items-center justify-center gap-6 mt-6">
-            <div className="flex items-center space-x-2">
-              <div className="text-sm text-slate-400">Low</div>
-              <div className="flex space-x-1">
-                {Array.from({ length: 5 }).map((_, i) => {
-                  const opacity = (i + 1) * 0.2;
-                  const bgColor = selectedTrendMetric === 'Efficiency' 
-                    ? `rgba(34, 197, 94, ${opacity})` 
-                    : `rgba(59, 130, 246, ${opacity})`;
-                  return (
-                    <div 
-                      key={i}
-                      className="w-4 h-4 rounded"
-                      style={{ backgroundColor: bgColor }}
-                    ></div>
-                  );
-                })}
-              </div>
-              <div className="text-sm text-slate-400">High</div>
-            </div>
-          </div>
         </div>
-        )}
-
-        {/* Compute Modal */}
-        <ComputeModal
-          isOpen={showComputeModal}
-          onClose={() => setShowComputeModal(false)}
-          computeId={selectedComputeId}
-        />
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b" style={{ borderColor: '#334155' }}>
+                <th className="text-left py-2 text-sm font-medium text-slate-400">Cloud Account</th>
+                <th className="text-left py-2 text-sm font-medium text-slate-400">Application</th>
+                <th className="text-left py-2 text-sm font-medium text-slate-400">
+                  {selectedCategory === 'usage-cost' ? 'Compute Usage' : 
+                   selectedCategory === 'disk-utilisation' ? 'Disk Usage' : 'Idle Instances'}
+                </th>
+                <th className="text-left py-2 text-sm font-medium text-slate-400">Spends</th>
+                <th className="text-left py-2 text-sm font-medium text-slate-400">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attentionData?.slice(0, 5).map((item: any, index: number) => (
+                <tr key={index} className="border-b" style={{ borderColor: '#334155' }}>
+                  <td className="py-3 text-sm text-white">{item.cloudAccount}</td>
+                  <td className="py-3 text-sm text-blue-400 cursor-pointer hover:text-blue-300">
+                    {item.applicationName}
+                  </td>
+                  <td className="py-3 text-sm text-white">
+                    {selectedCategory === 'usage-cost' ? `${item.computeUsage}%` :
+                     selectedCategory === 'disk-utilisation' ? `${item.diskUtilisation}%` :
+                     `${item.idleInstances} instances`}
+                  </td>
+                  <td className="py-3 text-sm text-white font-semibold">
+                    ${item.spends?.toLocaleString()}
+                  </td>
+                  <td className="py-3">
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      item.status === 'active' ? 'bg-green-900 text-green-200' : 'bg-gray-700 text-gray-300'
+                    }`}>
+                      {item.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
