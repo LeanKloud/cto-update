@@ -1,7 +1,7 @@
 import { mockApiData } from '../data/mockApiData';
 
 // Simulate network delay
-const delay = (ms: number = 100) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number = 50) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Mock API responses that match the expected API structure
 export class MockApiService {

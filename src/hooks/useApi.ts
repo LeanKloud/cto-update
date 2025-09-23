@@ -45,17 +45,30 @@ export function useApi<T>(
   }, dependencies);
 
   const refetch = async () => {
-    await fetchData();
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiCall();
+      if (response.success) {
+        setData(response.data);
+      } else {
+        setError(response.error || 'An error occurred');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return { data, loading, error, refetch };
 }
 
 // Specific hooks for common API calls
-export function useDashboardSummary(period?: string) {
+export function useDashboardSummary(params?: { period?: string }) {
   return useApi(
-    () => apiService.getDashboardSummary({ period }),
-    [period]
+    () => apiService.getDashboardSummary(params),
+    [params?.period]
   );
 }
 

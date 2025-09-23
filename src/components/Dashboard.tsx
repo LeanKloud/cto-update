@@ -104,6 +104,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <div className="text-slate-400">Loading dashboard...</div>
+          {dashboardError && (
+            <div className="text-red-400 mt-2 text-sm">Error: {dashboardError}</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if there's an error
+  if (dashboardError) {
+    return (
+      <div className="flex items-center justify-center h-full" style={{ backgroundColor: '#0F172A' }}>
+        <div className="text-center">
+          <div className="text-red-400 mb-4">Failed to load dashboard</div>
+          <div className="text-slate-400 text-sm">{dashboardError}</div>
         </div>
       </div>
     );
