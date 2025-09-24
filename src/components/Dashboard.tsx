@@ -829,35 +829,37 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                       {/* Main Stacked Bar */}
                       <div className="relative flex flex-col items-center">
                         <div className="w-8 relative" style={{ height: `${200}px` }}>
-                          {/* Spendings (Bottom - Red) */}
+                          {/* Spendings (Bottom - Slate) */}
                           <div
-                            className="absolute bottom-0 w-full bg-red-300 transition-all duration-200"
-                            style={{ height: `${Math.max(spendingHeight, 8)}px` }}
+                            className="absolute bottom-0 w-full transition-all duration-200"
+                            style={{ height: `${Math.max(spendingHeight, 8)}px`, backgroundColor: '#64748b' }}
                           ></div>
                           {/* Savings (Middle - Blue) */}
                           <div
-                            className="absolute w-full bg-blue-300 transition-all duration-200"
+                            className="absolute w-full transition-all duration-200"
                             style={{ 
                               height: `${Math.max(savingsHeight, 8)}px`,
-                              bottom: `${Math.max(spendingHeight, 8)}px`
+                              bottom: `${Math.max(spendingHeight, 8)}px`,
+                              backgroundColor: '#3b82f6'
                             }}
                           ></div>
-                          {/* Potential Savings (Top - Green) */}
+                          {/* Potential Savings (Top - Cyan) */}
                           <div
-                            className="absolute w-full bg-green-400 transition-all duration-200"
+                            className="absolute w-full transition-all duration-200"
                             style={{ 
                               height: `${Math.max(potentialHeight, 8)}px`,
-                              bottom: `${Math.max(spendingHeight + savingsHeight, 16)}px`
+                              bottom: `${Math.max(spendingHeight + savingsHeight, 16)}px`,
+                              backgroundColor: '#06b6d4'
                             }}
                           ></div>
                         </div>
                       </div>
 
-                      {/* Efficiency Bar (Right - Grey) */}
+                      {/* Efficiency Bar (Right - Purple) */}
                       <div className="relative flex flex-col items-center">
                         <div
-                          className="w-6 bg-gray-400 transition-all duration-200"
-                          style={{ height: `${Math.max(efficiencyHeight, 8)}px` }}
+                          className="w-6 transition-all duration-200"
+                          style={{ height: `${Math.max(efficiencyHeight, 8)}px`, backgroundColor: '#8b5cf6' }}
                         ></div>
                       </div>
                     </div>
@@ -878,19 +880,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
             {/* Legend */}
             <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-red-300 rounded-full"></div>
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#64748b' }}></div>
                 <span className="text-slate-400">Spendings</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-300 rounded-full"></div>
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#3b82f6' }}></div>
                 <span className="text-slate-400">Savings</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#06b6d4' }}></div>
                 <span className="text-slate-400">Potential Savings</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#8b5cf6' }}></div>
                 <span className="text-slate-400">Efficiency</span>
               </div>
             </div>
@@ -914,7 +916,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                     cy="90"
                     r="70"
                     fill="none"
-                    stroke="#00BCD4"
+                    stroke="#3b82f6"
                     strokeWidth="28"
                     strokeDasharray={`${70 * 4.4} ${30 * 4.4}`}
                     strokeDashoffset="0"
@@ -925,7 +927,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                     cy="90"
                     r="70"
                     fill="none"
-                    stroke="#4CAF50"
+                    stroke="#64748b"
                     strokeWidth="28"
                     strokeDasharray={`${30 * 4.4} ${70 * 4.4}`}
                     strokeDashoffset={`-${70 * 4.4}`}
@@ -940,11 +942,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               {/* Legend */}
               <div className="ml-8 space-y-3">
                 <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CAF50' }}></div>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#64748b' }}></div>
                   <span className="text-slate-400 text-sm">On Demand</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#00BCD4' }}></div>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#3b82f6' }}></div>
                   <span className="text-slate-400 text-sm">On Spot</span>
                 </div>
               </div>
@@ -1011,18 +1013,18 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
 
                      {/* On Demand */}
                      <div 
-                       className="w-4 bg-[#4CAF50] transition-all duration-300 hover:opacity-80"
-                       style={{ height: `${Math.max((data.onDemand / 5000) * 180, 8)}px` }}
+                       className="w-4 transition-all duration-300 hover:opacity-80"
+                       style={{ height: `${Math.max((data.onDemand / 5000) * 180, 8)}px`, backgroundColor: '#64748b' }}
                      ></div>
                      {/* Spot */}
                      <div 
-                       className="w-4 bg-[#00BCD4] transition-all duration-300 hover:opacity-80"
-                       style={{ height: `${Math.max((data.spot / 5000) * 180, 8)}px` }}
+                       className="w-4 transition-all duration-300 hover:opacity-80"
+                       style={{ height: `${Math.max((data.spot / 5000) * 180, 8)}px`, backgroundColor: '#3b82f6' }}
                      ></div>
                      {/* Savings on Spot */}
                      <div 
-                       className="w-4 bg-[#f28b82] transition-all duration-300 hover:opacity-80"
-                       style={{ height: `${Math.max((data.savings / 5000) * 180, 8)}px` }}
+                       className="w-4 transition-all duration-300 hover:opacity-80"
+                       style={{ height: `${Math.max((data.savings / 5000) * 180, 8)}px`, backgroundColor: '#06b6d4' }}
                      ></div>
                    </div>
                   ));
@@ -1044,15 +1046,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
               {/* Legend */}
               <div className="flex items-center justify-center space-x-6 mt-6 text-sm">
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-[#4CAF50] rounded-full"></div>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#64748b' }}></div>
                   <span className="text-slate-400">On Demand</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-[#00BCD4] rounded-full"></div>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#3b82f6' }}></div>
                   <span className="text-slate-400">Spot</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-[#f28b82] rounded-full"></div>
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#06b6d4' }}></div>
                   <span className="text-slate-400">Savings on Spot</span>
                 </div>
               </div>
