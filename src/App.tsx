@@ -1,25 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard';
-import ApplicationsTableView from './components/ApplicationsTableView';
 import Sidebar from './components/Sidebar';
 import CloudAccountSummary from './components/CloudAccountSummary';
 import CloudAccountDetail from './components/CloudAccountDetail';
 import CloudAccountApps from './components/CloudAccountApps';
+import VMRecommendations from './components/recommendations/VMRecommendations';
+import DBRecommendations from './components/recommendations/DBRecommendations';
+import StorageUnattachedDisks from './components/recommendations/StorageUnattachedDisks';
+import StorageIdle from './components/recommendations/StorageIdle';
+import StorageSize from './components/recommendations/StorageSize';
+import StorageIOPS from './components/recommendations/StorageIOPS';
+import ApplicationRecommendations from './components/recommendations/ApplicationRecommendations';
+import ApplicationRecommendationsDetail from './components/ApplicationRecommendationsDetail';
+import UnassignedAssetsManagement from './components/UnassignedAssetsManagement';
 import { ViewType } from './types';
-import { useDashboardSummary, useCloudAccounts } from './hooks/useApi';
+import { useCloudAccounts } from './hooks/useApi';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [showCloudAccountDetail, setShowCloudAccountDetail] = useState(false);
   const [selectedCloudAccount, setSelectedCloudAccount] = useState('');
   const [selectedAccountForApps, setSelectedAccountForApps] = useState('');
-  const [selectedAccountId, setSelectedAccountId] = useState('');
   const [selectedApplicationName, setSelectedApplicationName] = useState('');
+  const [activeRecommendationTab, setActiveRecommendationTab] = useState<string>('');
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
 
   // API hooks
   const { data: cloudAccountsData } = useCloudAccounts();
-  const cloudAccountSummaryData = cloudAccountsData?.accounts || [];
-  const applicationData = []; // Will be fetched per account
+  const cloudAccountSummaryData = (cloudAccountsData as any)?.accounts || [];
 
   // Listen for requests from child components to open cloud account detail
   useEffect(() => {
@@ -37,7 +45,7 @@ const App: React.FC = () => {
 
   // Listen for requests to navigate to applications view
   useEffect(() => {
-    const handler = (e: Event) => {
+    const handler = () => {
       setCurrentView('applications');
     };
     window.addEventListener('navigateToApplications', handler as EventListener);
@@ -74,18 +82,18 @@ const App: React.FC = () => {
   const handleNavigation = (view: 'dashboard' | 'applications') => {
     setCurrentView(view);
     setShowCloudAccountDetail(false);
+    setActiveRecommendationTab('');
+  };
+
+  const handleRecommendationNavigation = (tab: string) => {
+    setCurrentView('applications'); // Set to a base view
+    setShowCloudAccountDetail(false);
+    setActiveRecommendationTab(tab);
   };
 
   const handleCloudAccountSummaryClick = (cloudAccount: string) => {
     setSelectedAccountForApps(cloudAccount);
     setCurrentView('cloudAccountApps');
-  };
-
-  const handleCloudAccountClick = (cloudAccount: string) => {
-    setSelectedCloudAccount(cloudAccount);
-    setSelectedApplicationName('');
-    setShowCloudAccountDetail(true);
-    setCurrentView('applications');
   };
 
   const handleApplicationClick = (applicationName: string) => {
@@ -102,20 +110,89 @@ const App: React.FC = () => {
     setCurrentView('cloudAccountApps');
   };
 
-  const handleComputeIdClick = (computeId: string) => {
+  const handleComputeIdClick = () => {
     // Handle compute ID click if needed
   };
+
+  const handleViewApplicationDetail = (applicationId: string) => {
+    setSelectedApplicationId(applicationId);
+    setCurrentView('application-detail');
+  };
+
+  const handleManageUnassignedAssets = () => {
+    setCurrentView('unassigned-assets');
+  };
+
+  const handleBackFromApplicationDetail = () => {
+    setSelectedApplicationId(null);
+    setCurrentView('applications');
+    setActiveRecommendationTab('Application Recommendations');
+  };
+
+  const handleBackFromUnassignedAssets = () => {
+    setCurrentView('applications');
+    setActiveRecommendationTab('Application Recommendations');
+  };
+
+  // Handle special views that don't need sidebar
+  if (currentView === 'application-detail') {
+    return (
+      <ApplicationRecommendationsDetail 
+        applicationId={selectedApplicationId} 
+        onBack={handleBackFromApplicationDetail}
+      />
+    );
+  }
+
+  if (currentView === 'unassigned-assets') {
+    return (
+      <UnassignedAssetsManagement 
+        onBack={handleBackFromUnassignedAssets}
+      />
+    );
+  }
+
+  // Recommendations view
+  if (activeRecommendationTab) {
+    return (
+      <div className="flex h-screen" style={{ backgroundColor: '#0f172a' }}>
+        <Sidebar 
+          currentView={currentView} 
+          onNavigate={handleNavigation} 
+          onRecommendationNavigate={handleRecommendationNavigation}
+        />
+        <div className="flex-1 overflow-y-auto">
+          {activeRecommendationTab === 'VM Recommendations' && <VMRecommendations />}
+          {activeRecommendationTab === 'DB Recommendations' && <DBRecommendations />}
+          {activeRecommendationTab === 'Unattached Disks' && <StorageUnattachedDisks />}
+          {activeRecommendationTab === 'Idle Disks' && <StorageIdle />}
+          {activeRecommendationTab === 'Size Recommendations' && <StorageSize />}
+          {activeRecommendationTab === 'IOPS Recommendations' && <StorageIOPS />}
+          {activeRecommendationTab === 'Application Recommendations' && (
+            <ApplicationRecommendations 
+              onViewRecommendations={handleViewApplicationDetail}
+              onManageAssets={handleManageUnassignedAssets}
+            />
+          )}
+          {/* Add other recommendation components as needed */}
+        </div>
+      </div>
+    );
+  }
 
   // Dashboard view
   if (currentView === 'dashboard') {
     return (
       <div className="flex h-screen" style={{ backgroundColor: '#0f172a' }}>
-        <Sidebar currentView={currentView} onNavigate={handleNavigation} />
+        <Sidebar 
+          currentView={currentView} 
+          onNavigate={handleNavigation} 
+          onRecommendationNavigate={handleRecommendationNavigation}
+        />
         <div className="flex-1 overflow-y-auto">
           <Dashboard 
             onViewApplications={() => setCurrentView('applications')}
-            onViewAccountDetails={(accountId) => {
-              setSelectedAccountId(accountId);
+            onViewAccountDetails={() => {
               setCurrentView('applications');
             }}
           />
@@ -128,7 +205,11 @@ const App: React.FC = () => {
   if (showCloudAccountDetail) {
     return (
       <div className="flex h-screen" style={{ backgroundColor: '#0f172a' }}>
-        <Sidebar currentView={currentView} onNavigate={handleNavigation} />
+        <Sidebar 
+          currentView={currentView} 
+          onNavigate={handleNavigation} 
+          onRecommendationNavigate={handleRecommendationNavigation}
+        />
         <div className="flex-1 overflow-hidden">
           <CloudAccountDetail
             cloudAccount={selectedCloudAccount}
@@ -145,7 +226,11 @@ const App: React.FC = () => {
   if (currentView === 'cloudAccountApps') {
     return (
       <div className="flex h-screen" style={{ backgroundColor: '#0f172a' }}>
-        <Sidebar currentView={currentView} onNavigate={handleNavigation} />
+        <Sidebar 
+          currentView={currentView} 
+          onNavigate={handleNavigation} 
+          onRecommendationNavigate={handleRecommendationNavigation}
+        />
         <CloudAccountApps
           selectedAccount={selectedAccountForApps}
           onBack={() => setCurrentView('applications')}
@@ -158,7 +243,11 @@ const App: React.FC = () => {
   // Applications view (default)
   return (
     <div className="flex h-screen" style={{ backgroundColor: '#0f172a' }}>
-      <Sidebar currentView={currentView} onNavigate={handleNavigation} />
+      <Sidebar 
+        currentView={currentView} 
+        onNavigate={handleNavigation} 
+        onRecommendationNavigate={handleRecommendationNavigation}
+      />
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">
           <div className="px-6 py-4" style={{ backgroundColor: '#1e293b', borderBottom: '1px solid #334155' }}>
