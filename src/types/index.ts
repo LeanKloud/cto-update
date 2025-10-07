@@ -21,6 +21,7 @@ export interface ComputeResource {
   maxCpu?: string;
   maxMemory?: string;
   dbType?: string;
+  department?: string;
 }
 
 export interface CloudAccountSummary {

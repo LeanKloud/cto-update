@@ -44,7 +44,25 @@ export function useApi<T>(
     };
   }, dependencies);
 
-  return { data, loading, error, refetch: () => fetchData() };
+  const refetch = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await apiCall();
+      
+      if (response.success) {
+        setData(response.data);
+      } else {
+        setError(response.error || 'An error occurred');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { data, loading, error, refetch };
 }
 
 // Specific hooks for common API calls
