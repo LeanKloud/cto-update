@@ -31,34 +31,111 @@ export const mockApiData = {
 
   // Applications data by cloud account
   applications: {
-    'ca-001': Array(45).fill(null).map((_, index) => ({
-      id: `app-001-${String(index + 1).padStart(3, '0')}`,
+    'Cloud Account 1': Array(45).fill(null).map((_, index) => ({
+      id: `app-ca1-${String(index + 1).padStart(3, '0')}`,
       cloudAccount: 'Cloud Account 1',
       applicationName: `Temp_Core_${String(index + 1).padStart(2, '0')}`,
       spends: `$${700 - (index % 5) * 10}k`,
       potentialSavings: `$${700 - (index % 7) * 20}k`,
       efficiency: `${90 - (index % 6) * 3}%`,
-      department: ['Engineering', 'Sales', 'Marketing', 'Finance', 'HR', 'Operations', 'Product'][index % 7],
+      department: 'Engineering',
       provider: 'AWS' as const,
     })),
-    'ca-002': Array(32).fill(null).map((_, index) => ({
-      id: `app-002-${String(index + 1).padStart(3, '0')}`,
+    'Cloud Account 2': Array(32).fill(null).map((_, index) => ({
+      id: `app-ca2-${String(index + 1).padStart(3, '0')}`,
       cloudAccount: 'Cloud Account 2',
       applicationName: `Azure_App_${String(index + 1).padStart(2, '0')}`,
-      instanceId: `vm-${(2000000000000000000 + index).toString(16)}`,
-      volumeId: `disk-${(8000000000000000000 + index).toString(16)}`,
       spends: `$${650 - (index % 4) * 15}k`,
-      potentialSavings: `$${600 - (index % 6) * 25}k`,
-      efficiency: `${85 - (index % 5) * 4}%`,
-      department: ['Engineering', 'Sales', 'Marketing', 'Finance', 'HR', 'Operations', 'Product'][index % 7],
+      potentialSavings: `$${650 - (index % 6) * 25}k`,
+      efficiency: `${85 - (index % 5) * 2}%`,
+      department: 'Sales',
       provider: 'Azure' as const,
     })),
-    // Add similar data for other cloud accounts...
+    'Cloud Account 3': Array(28).fill(null).map((_, index) => ({
+      id: `app-ca3-${String(index + 1).padStart(3, '0')}`,
+      cloudAccount: 'Cloud Account 3',
+      applicationName: `GCP_Service_${String(index + 1).padStart(2, '0')}`,
+      spends: `$${600 - (index % 3) * 12}k`,
+      potentialSavings: `$${600 - (index % 5) * 18}k`,
+      efficiency: `${82 - (index % 4) * 2}%`,
+      department: 'Marketing',
+      provider: 'GCP' as const,
+    })),
+    'Cloud Account 4': Array(38).fill(null).map((_, index) => ({
+      id: `app-ca4-${String(index + 1).padStart(3, '0')}`,
+      cloudAccount: 'Cloud Account 4',
+      applicationName: `Finance_App_${String(index + 1).padStart(2, '0')}`,
+      spends: `$${720 - (index % 6) * 8}k`,
+      potentialSavings: `$${720 - (index % 8) * 15}k`,
+      efficiency: `${88 - (index % 7) * 1}%`,
+      department: 'Finance',
+      provider: 'AWS' as const,
+    })),
+    'Cloud Account 5': Array(25).fill(null).map((_, index) => ({
+      id: `app-ca5-${String(index + 1).padStart(3, '0')}`,
+      cloudAccount: 'Cloud Account 5',
+      applicationName: `HR_System_${String(index + 1).padStart(2, '0')}`,
+      spends: `$${550 - (index % 4) * 20}k`,
+      potentialSavings: `$${550 - (index % 6) * 30}k`,
+      efficiency: `${75 - (index % 5) * 3}%`,
+      department: 'HR',
+      provider: 'Azure' as const,
+    })),
+    'Cloud Account 6': Array(52).fill(null).map((_, index) => ({
+      id: `app-ca6-${String(index + 1).padStart(3, '0')}`,
+      cloudAccount: 'Cloud Account 6',
+      applicationName: `Ops_Tool_${String(index + 1).padStart(2, '0')}`,
+      spends: `$${800 - (index % 7) * 12}k`,
+      potentialSavings: `$${800 - (index % 9) * 18}k`,
+      efficiency: `${92 - (index % 8) * 1}%`,
+      department: 'Operations',
+      provider: 'AWS' as const,
+    })),
+    'Cloud Account 7': Array(35).fill(null).map((_, index) => ({
+      id: `app-ca7-${String(index + 1).padStart(3, '0')}`,
+      cloudAccount: 'Cloud Account 7',
+      applicationName: `Product_Service_${String(index + 1).padStart(2, '0')}`,
+      spends: `$${680 - (index % 5) * 14}k`,
+      potentialSavings: `$${680 - (index % 7) * 22}k`,
+      efficiency: `${79 - (index % 6) * 2}%`,
+      department: 'Product',
+      provider: 'GCP' as const,
+    })),
+    'Cloud Account 8': Array(41).fill(null).map((_, index) => ({
+      id: `app-ca8-${String(index + 1).padStart(3, '0')}`,
+      cloudAccount: 'Cloud Account 8',
+      applicationName: `Eng_Platform_${String(index + 1).padStart(2, '0')}`,
+      spends: `$${750 - (index % 6) * 16}k`,
+      potentialSavings: `$${750 - (index % 8) * 24}k`,
+      efficiency: `${83 - (index % 7) * 2}%`,
+      department: 'Engineering',
+      provider: 'Azure' as const,
+    })),
+    'Cloud Account 9': Array(29).fill(null).map((_, index) => ({
+      id: `app-ca9-${String(index + 1).padStart(3, '0')}`,
+      cloudAccount: 'Cloud Account 9',
+      applicationName: `Sales_CRM_${String(index + 1).padStart(2, '0')}`,
+      spends: `$${620 - (index % 4) * 18}k`,
+      potentialSavings: `$${620 - (index % 6) * 26}k`,
+      efficiency: `${77 - (index % 5) * 3}%`,
+      department: 'Sales',
+      provider: 'AWS' as const,
+    })),
+    'Cloud Account 10': Array(33).fill(null).map((_, index) => ({
+      id: `app-ca10-${String(index + 1).padStart(3, '0')}`,
+      cloudAccount: 'Cloud Account 10',
+      applicationName: `Marketing_Analytics_${String(index + 1).padStart(2, '0')}`,
+      spends: `$${660 - (index % 5) * 13}k`,
+      potentialSavings: `$${660 - (index % 7) * 19}k`,
+      efficiency: `${81 - (index % 6) * 2}%`,
+      department: 'Marketing',
+      provider: 'GCP' as const,
+    })),
   },
 
   // Compute resources by application
   computeResources: {
-    'app-001-001': [
+    'app-ca1-001': [
       { computeType: 'Lambda', computeId: 'lambda-001', currentServer: 't3a.medium', spends: '$700k', savings: '$700k', potentialSavings: '$700k', efficiency: '90%', maxCpu: '2 vCPU', maxMemory: '4 GB' },
       { computeType: 'Virtual Machines', computeId: 'vm-001', currentServer: 't3a.large', spends: '$850k', savings: '$200k', potentialSavings: '$300k', efficiency: '85%', maxCpu: '4 vCPU', maxMemory: '8 GB' },
       { computeType: 'Virtual desktop (Serverless)', computeId: 'vd-001', currentServer: 't3a.medium', spends: '$500k', savings: '$150k', potentialSavings: '$250k', efficiency: '88%', maxCpu: '2 vCPU', maxMemory: '4 GB' },
@@ -67,7 +144,7 @@ export const mockApiData = {
 
   // Storage resources by application
   storageResources: {
-    'app-001-001': [
+    'app-ca1-001': [
       { computeType: 'S3 Bucket', computeId: 'bucket-app-logs', currentServer: 'Standard', spends: '$120k', savings: '$30k', potentialSavings: '$40k', efficiency: '75%' },
       { computeType: 'EBS Volume', computeId: 'vol-0a1b2c3d4e5f6g7h', currentServer: 'Standard', spends: '$90k', savings: '$15k', potentialSavings: '$20k', efficiency: '70%' },
       { computeType: 'EFS', computeId: 'fs-0a1b2c3d', currentServer: 'General Purpose', spends: '$60k', savings: '$10k', potentialSavings: '$15k', efficiency: '68%' },
@@ -76,7 +153,7 @@ export const mockApiData = {
 
   // Database resources by application
   databaseResources: {
-    'app-001-001': [
+    'app-ca1-001': [
       { computeType: 'RDS (PostgreSQL)', computeId: 'db-analytics-01', currentServer: 'db.m6g.large', spends: '$300k', savings: '$80k', potentialSavings: '$50k', efficiency: '78%', dbType: 'rds' },
       { computeType: 'RDS (MySQL)', computeId: 'db-core-01', currentServer: 'db.t4g.large', spends: '$180k', savings: '$25k', potentialSavings: '$30k', efficiency: '72%', dbType: 'rds' },
       { computeType: 'Aurora', computeId: 'aurora-cluster-01', currentServer: 'r6g.large', spends: '$400k', savings: '$120k', potentialSavings: '$70k', efficiency: '85%', dbType: 'vcore' },

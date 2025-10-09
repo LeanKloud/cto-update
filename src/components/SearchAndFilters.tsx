@@ -9,8 +9,7 @@ interface SearchAndFiltersProps {
   setSelectedDepartment: (dept: string) => void;
   selectedProvider: string;
   setSelectedProvider: (provider: string) => void;
-  selectedPeriod: string;
-  setSelectedPeriod: (period: string) => void;
+
   sortBy: string;
   setSortBy: (sort: string) => void;
   sortOrder: SortOrder;
@@ -19,6 +18,8 @@ interface SearchAndFiltersProps {
   setCurrentPage: (page: number) => void;
   placeholder?: string;
   sortOptions?: Array<{ value: string; label: string }>;
+  hideProviderFilter?: boolean;
+  departments?: string[];
 }
 
 const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
@@ -28,8 +29,7 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
   setSelectedDepartment,
   selectedProvider,
   setSelectedProvider,
-  selectedPeriod,
-  setSelectedPeriod,
+
   sortBy,
   setSortBy,
   sortOrder,
@@ -43,7 +43,9 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
     { value: 'potentialSavings', label: 'Potential Savings' },
     { value: 'efficiency', label: 'Efficiency' },
     { value: 'department', label: 'Department' }
-  ]
+  ],
+  hideProviderFilter = false,
+  departments = []
 }) => {
   return (
     <div className="p-6 m-6 mt-6" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
@@ -69,48 +71,31 @@ const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
               style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
             >
               <option value="All Departments">All Departments</option>
-              <option value="Engineering">Engineering</option>
-              <option value="Sales">Sales</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Finance">Finance</option>
-              <option value="HR">HR</option>
-              <option value="Operations">Operations</option>
-              <option value="Product">Product</option>
+              {departments.map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
             </select>
             <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
           </div>
 
-          <div className="relative">
-            <select
-              value={selectedProvider}
-              onChange={(e) => { setSelectedProvider(e.target.value); setCurrentPage(1); }}
-              className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
-              style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
-            >
-              <option value="All Providers">All Providers</option>
-              <option value="AWS">AWS</option>
-              <option value="Azure">Azure</option>
-              <option value="GCP">GCP</option>
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-          </div>
+          {!hideProviderFilter && (
+            <div className="relative">
+              <select
+                value={selectedProvider}
+                onChange={(e) => { setSelectedProvider(e.target.value); setCurrentPage(1); }}
+                className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
+                style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
+              >
+                <option value="All Providers">All Providers</option>
+                <option value="AWS">AWS</option>
+                <option value="Azure">Azure</option>
+                <option value="GCP">GCP</option>
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            </div>
+          )}
 
-          <div className="relative">
-            <select
-              value={selectedPeriod}
-              onChange={(e) => { setSelectedPeriod(e.target.value); setCurrentPage(1); }}
-              className="appearance-none rounded-md px-4 py-2 pr-8 text-white"
-              style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
-            >
-              <option value="2025, Q1">2025, Q1</option>
-              <option value="2024, Q4">2024, Q4</option>
-              <option value="2024, Q3">2024, Q3</option>
-              <option value="2024, Q2">2024, Q2</option>
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-          </div>
-
-          <div className="relative">
+<div className="relative">
             <select
               value={sortBy}
               onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}

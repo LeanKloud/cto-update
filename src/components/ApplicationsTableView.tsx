@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, Search, Filter, ChevronDown } from 'lucide-react';
 
 interface ApplicationsTableViewProps {
@@ -7,6 +7,13 @@ interface ApplicationsTableViewProps {
 }
 
 const ApplicationsTableView: React.FC<ApplicationsTableViewProps> = ({ onBack, onCloudAccountClick }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProvider, setSelectedProvider] = useState('All Providers');
+  const [sortBy, setSortBy] = useState('');
+  const [sortOrder, setSortOrder] = useState('desc');
+  
   const applications = [
     {
       id: 'app-1',
@@ -158,6 +165,74 @@ const ApplicationsTableView: React.FC<ApplicationsTableViewProps> = ({ onBack, o
     onCloudAccountClick(accountName);
   };
 
+  // Generate more applications to show full dataset
+  const allApplications = [
+    ...applications,
+    ...Array(18).fill(null).map((_, index) => ({
+      id: `app-${13 + index}`,
+      cloudAccount: `Cloud Account ${Math.floor((index % 10) + 1)}`,
+      applicationName: `Temp_Core_${String(35 + index).padStart(2, '0')}`,
+      instanceId: 'i-de0b6b3a7640000',
+      volumeId: 'vol-6124fee993bc0000',
+      spends: `$${680 - (index % 8) * 10}k`,
+      potentialSavings: `$${680 - (index % 9) * 15}k`,
+      efficiency: `${85 - (index % 7) * 2}%`,
+      department: ['Engineering', 'Finance', 'Product', 'Marketing', 'Operations', 'Sales', 'HR'][index % 7],
+      provider: 'AWS'
+    }))
+  ];
+
+  // Filter and sort applications
+  const filteredApplications = allApplications.filter(app => {
+    const matchesSearch = searchTerm === '' || 
+      app.applicationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.instanceId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesProvider = selectedProvider === 'All Providers' || app.provider === selectedProvider;
+    return matchesSearch && matchesProvider;
+  });
+
+  const sortedApplications = sortBy ? [...filteredApplications].sort((a, b) => {
+    let aVal, bVal;
+    switch (sortBy) {
+      case 'applicationName':
+        aVal = a.applicationName;
+        bVal = b.applicationName;
+        break;
+      case 'spends':
+        aVal = parseFloat(a.spends.replace(/[$,k]/g, ''));
+        bVal = parseFloat(b.spends.replace(/[$,k]/g, ''));
+        break;
+      case 'potentialSavings':
+        aVal = parseFloat(a.potentialSavings.replace(/[$,k]/g, ''));
+        bVal = parseFloat(b.potentialSavings.replace(/[$,k]/g, ''));
+        break;
+      case 'efficiency':
+        aVal = parseFloat(a.efficiency.replace('%', ''));
+        bVal = parseFloat(b.efficiency.replace('%', ''));
+        break;
+      case 'department':
+        aVal = a.department;
+        bVal = b.department;
+        break;
+      default:
+        return 0;
+    }
+    if (typeof aVal === 'string') {
+      return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    }
+    return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+  }) : filteredApplications;
+
+  // Pagination
+  const totalPages = Math.ceil(sortedApplications.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentApplications = sortedApplications.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -170,66 +245,69 @@ const ApplicationsTableView: React.FC<ApplicationsTableViewProps> = ({ onBack, o
             <ArrowLeft className="w-5 h-5" />
             <span>Back</span>
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">All Applications</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Applications</h1>
         </div>
       </div>
 
       {/* Filters */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between space-x-4">
-          <div className="flex items-center space-x-4 flex-1">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search by Application name, Instance ID"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option>All Departments</option>
-                <option>Engineering</option>
-                <option>Finance</option>
-                <option>Product</option>
-                <option>Marketing</option>
-                <option>Operations</option>
-                <option>Sales</option>
-                <option>HR</option>
-              </select>
-              
-              <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option>AWS</option>
-                <option>Azure</option>
-                <option>GCP</option>
-              </select>
-              
-              <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option>2025, Q1</option>
-                <option>2024, Q4</option>
-                <option>2024, Q3</option>
-              </select>
-              
-              <div className="flex items-center space-x-2">
-                <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option>Sort by</option>
-                  <option>Spends</option>
-                  <option>Efficiency</option>
-                  <option>Potential Savings</option>
-                </select>
-                
-                <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option>Descending</option>
-                  <option>Ascending</option>
-                </select>
-              </div>
-              
-              <button className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors">
-                Reset Filters
-              </button>
-            </div>
+        <div className="flex items-center space-x-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search by Application name, Instance ID"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
+          
+          <select 
+            value={selectedProvider}
+            onChange={(e) => setSelectedProvider(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option>All Providers</option>
+            <option>AWS</option>
+            <option>Azure</option>
+            <option>GCP</option>
+          </select>
+          
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Sort by</option>
+            <option value="applicationName">Application Name</option>
+            <option value="spends">Spends</option>
+            <option value="potentialSavings">Potential Savings</option>
+            <option value="efficiency">Efficiency</option>
+            <option value="department">Department</option>
+          </select>
+          
+          <select 
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="desc">Descending</option>
+            <option value="asc">Ascending</option>
+          </select>
+          
+          <button 
+            onClick={() => {
+              setSearchTerm('');
+              setSelectedProvider('All Providers');
+              setSortBy('');
+              setSortOrder('desc');
+              setCurrentPage(1);
+            }}
+            className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Reset Filters
+          </button>
         </div>
       </div>
 
@@ -270,7 +348,7 @@ const ApplicationsTableView: React.FC<ApplicationsTableViewProps> = ({ onBack, o
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {applications.map((app, index) => (
+                {currentApplications.map((app, index) => (
                   <tr key={app.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
@@ -318,21 +396,42 @@ const ApplicationsTableView: React.FC<ApplicationsTableViewProps> = ({ onBack, o
           <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-700">
-                Showing 1 to 12 of 30 results
+                Showing {startIndex + 1} to {Math.min(endIndex, sortedApplications.length)} of {sortedApplications.length} results
               </div>
               <div className="flex items-center space-x-2">
-                <button className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                  1
-                </button>
-                <button className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  2
-                </button>
-                <button className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  3
-                </button>
-                <button className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                  →
-                </button>
+                {currentPage > 1 && (
+                  <button 
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    ←
+                  </button>
+                )}
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                  if (pageNum > totalPages) return null;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-1 text-sm rounded transition-colors ${
+                        currentPage === pageNum
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                {currentPage < totalPages && (
+                  <button 
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    →
+                  </button>
+                )}
               </div>
             </div>
           </div>

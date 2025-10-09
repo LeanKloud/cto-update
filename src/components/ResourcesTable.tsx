@@ -47,8 +47,8 @@ const ResourcesTable: React.FC<ResourcesTableProps> = ({
   // Filter resources based on search term
   const filteredResources = searchTerm
     ? resources.filter((r) =>
-        [r.computeType, r.computeId, r.currentServer, r.spends, r.savings, r.potentialSavings, r.efficiency]
-          .some((v) => v.toLowerCase().includes(searchTerm.toLowerCase()))
+        [r.computeType, r.computeId, r.currentServer, r.spends, r.savings, r.potentialSavings, r.efficiency, r.department]
+          .some((v) => v?.toLowerCase().includes(searchTerm.toLowerCase()))
       )
     : resources;
 
@@ -98,6 +98,7 @@ const ResourcesTable: React.FC<ResourcesTableProps> = ({
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">SAVINGS</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">POTENTIAL SAVINGS</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">EFFICIENCY</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">DEPARTMENT</th>
               </tr>
             </thead>
             <tbody className="divide-y" style={{ borderColor: '#334155' }}>
@@ -110,6 +111,7 @@ const ResourcesTable: React.FC<ResourcesTableProps> = ({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-semibold">{resource.savings}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-green-400 font-semibold">{resource.potentialSavings}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-semibold">{resource.efficiency}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{resource.department || 'Unknown'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
                     <ChevronRight className="h-4 w-4" />
                   </td>

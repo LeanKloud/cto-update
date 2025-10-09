@@ -53,31 +53,19 @@ Authentication: Bearer token in Authorization header
 }
 ```
 
-### 3. GET /applications
+### 3. GET /cloud-accounts/{account_id}/applications
 ```json
-{
-  "success": true,
-  "data": {
-    "applications": [
-      {
-        "id": "app-001-001",
-        "cloudAccount": "Cloud Account 1",
-        "applicationName": "Temp_Core_01",
-        "spends": "$700k",
-        "potentialSavings": "$700k",
-        "efficiency": "90%",
-        "department": "Engineering",
-        "provider": "AWS"
-      }
-    ],
-    "pagination": {
-      "page": 1,
-      "limit": 20,
-      "total": 45,
-      "totalPages": 3
-    }
+[
+  {
+    "cloudAccount": "gcp-analytics-sandbox",
+    "applicationName": "auth-service",
+    "spends": "$466.0k",
+    "potentialSavings": "$185.0k",
+    "efficiency": "74.0%",
+    "department": "GCP Analytics Sandbox",
+    "provider": "GCP"
   }
-}
+]
 ```
 
 ### 4. GET /applications/:applicationId/compute
