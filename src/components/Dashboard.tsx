@@ -13,6 +13,7 @@ import {
   Info
 } from 'lucide-react';
 import { useDashboardSummary, useAlerts, useCloudAccounts } from '../hooks/useApi';
+import { getCurrentQuarter } from '../utils/dateUtils';
 import ComputeModal from './ComputeModal';
 
 interface ApplicationData {
@@ -54,12 +55,12 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccountDetails }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProvider, setSelectedProvider] = useState('All Providers');
-  const [selectedQuarter, setSelectedQuarter] = useState('2025, Q1');
+  const [selectedQuarter, setSelectedQuarter] = useState('2025, Q4');
 
   // API hooks
   const { data: dashboardData, loading: dashboardLoading } = useDashboardSummary(selectedQuarter);
   const { data: alertsData } = useAlerts({ limit: 5 });
-  const { data: cloudAccountsData } = useCloudAccounts();
+  const { data: cloudAccountsData } = useCloudAccounts({ period: selectedQuarter });
   const alerts = alertsData || [];
   const [hoveredAccount, setHoveredAccount] = useState<number | null>(null);
   const [showAttentionView, setShowAttentionView] = useState(false);
@@ -369,9 +370,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                   onChange={(e) => setSelectedQuarter(e.target.value)}
                   className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
+                  <option value="2025, Q4">2025, Q4</option>
+                  <option value="2025, Q3">2025, Q3</option>
+                  <option value="2025, Q2">2025, Q2</option>
                   <option value="2025, Q1">2025, Q1</option>
-                  <option value="2024, Q4">2024, Q4</option>
-                  <option value="2024, Q3">2024, Q3</option>
                 </select>
                 <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
@@ -595,9 +597,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onViewApplications, onViewAccount
                 className="appearance-none rounded-lg px-4 py-2 pr-8 text-white"
                 style={{ backgroundColor: '#334155', border: '1px solid #475569' }}
               >
+                <option value="2025, Q4">2025, Q4</option>
+                <option value="2025, Q3">2025, Q3</option>
+                <option value="2025, Q2">2025, Q2</option>
                 <option value="2025, Q1">2025, Q1</option>
-                <option value="2024, Q4">2024, Q4</option>
-                <option value="2024, Q3">2024, Q3</option>
               </select>
               <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             </div>

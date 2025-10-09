@@ -1,4 +1,5 @@
 import { mockApiService } from './mockApiService';
+import { getQuarterDates } from '../utils/dateUtils';
 
 // Use mock API service for development
 const USE_MOCK_API = false; // Always try real API first
@@ -35,7 +36,15 @@ class ApiService {
     // Always try real API first for cloud accounts
     try {
       console.log('Fetching cloud accounts from API...');
-      const response = await fetch('http://localhost:8888/api/optimization/cloud-accounts');
+      let url = 'http://localhost:8888/api/optimization/cloud-accounts';
+      
+      // Add start/end dates for dashboard chart when period is provided
+      if (params?.period) {
+        const { start, end } = getQuarterDates(params.period);
+        url += `?start=${start}&end=${end}`;
+      }
+      
+      const response = await fetch(url);
       console.log('Cloud accounts API response status:', response.status);
       
       if (!response.ok) {
